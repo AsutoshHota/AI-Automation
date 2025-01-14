@@ -3,236 +3,368 @@
 	"nodes": [
 		{
 			"parameters": {},
+			"id": "9496497c-42d3-4c17-86f8-16c56a6f6693",
 			"name": "Start",
 			"type": "n8n-nodes-base.start",
 			"typeVersion": 1,
 			"position": [
-				240,
+				180,
 				300
 			]
 		},
 		{
 			"parameters": {
-				"options": {}
-			},
-			"name": "Form Input",
-			"type": "n8n-nodes-base.webhook",
-			"typeVersion": 1,
-			"position": [
-				460,
-				300
-			],
-			"webhookId": "your_unique_webhook_id"
-		},
-		{
-			"parameters": {
-				"functionCode": "const formData = $input.first().json;\n\n// Example Validation (Modify based on actual input fields)\nif(!formData.contractName || formData.contractName.trim() === '') {\n    throw new Error('Contract Name is required.');\n}\nif(!formData.clientName || formData.clientName.trim() === '') {\n    throw new Error('Client Name is required.');\n}\nif(!formData.serviceCategory || formData.serviceCategory.trim() === '') {\n    throw new Error('Service Category is required.');\n}\n\nreturn [\n  {\n    json: formData\n  }\n];"
-			},
-			"name": "Data Validation",
-			"type": "n8n-nodes-base.function",
-			"typeVersion": 1,
-			"position": [
-				720,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"values": [
-					{
-						"name": "contractName",
-						"value": "={{$json.contractName}}"
-					},
-          {
-						"name": "clientName",
-						"value": "={{$json.clientName}}"
-					},
-					{
-						"name": "serviceCategory",
-						"value": "={{$json.serviceCategory}}"
-					},
-          {
-						"name": "serviceRequirements",
-						"value": "={{$json.serviceRequirements}}"
-					},
-          {
-						"name": "clientCriteria",
-						"value": "={{$json.clientCriteria}}"
-					}
-				]
-			},
-			"name": "Set Form Data",
-			"type": "n8n-nodes-base.set",
-			"typeVersion": 1,
-			"position": [
-				960,
-				300
-			]
-		},
-    {
-			"parameters": {
-				"authentication": "headerAuth",
-        "url": "https://api.example.com/historical-sow",
-        "options": {}
-			},
-			"name": "Fetch Historical SoW",
-			"type": "n8n-nodes-base.httpRequest",
-			"typeVersion": 1,
-			"position": [
-				960,
-        450
-			]
-		},
-    {
-      "parameters": {
-        "functionCode": "const historicalData = $input.item.json;\nconst formData = $input.item(0).json;\n\nlet content = '';\n\n// Example analysis of historical data and dynamic clause generation\nif(formData.serviceCategory === 'Consulting'){\n    content += '### Consulting Services Clause ###\\n';\n   // Logic to extract matching content from historicalData and insert it dynamically based on category\n}\nelse if(formData.serviceCategory === 'Development'){\n     content += '### Development Services Clause ###\\n';\n     //Logic to extract content from historical data and insert it dynamically\n}\n\n\nreturn [\n  {\n    json: {\n    ...formData,\n    historicalData: historicalData,\n    dynamicContent: content\n   }\n  }\n];"
-      },
-      "name": "Analyze Historical Data",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-				1200,
-				300
-			]
-    },
-		{
-			"parameters": {
-				"documentId": "your_google_doc_template_id",
-				"templateType": "document",
-				"values": [
-					{
-						"key": "{{$json.contractName}}",
-						"value": "{{$json.contractName}}"
-					},
-          {
-						"key": "{{$json.clientName}}",
-						"value": "{{$json.clientName}}"
-					},
-          {
-            "key":"{{$json.dynamicContent}}",
-            "value": "{{$json.dynamicContent}}"
-          }
-          ,
-					{
-						"key": "{{$json.serviceRequirements}}",
-						"value": "{{$json.serviceRequirements}}"
-					},
-          {
-						"key": "{{$json.clientCriteria}}",
-						"value": "{{$json.clientCriteria}}"
-					}
-
-				],
-				"output": "create"
-			},
-			"name": "Google Docs Integration",
-			"type": "n8n-nodes-base.googleSheets",
-			"typeVersion": 1,
-			"position": [
-				1440,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"toEmails": [
-					"approver@example.com"
-				],
-				"subject": "New SoW Document for Approval: {{$json.contractName}}",
-				"text": "A new Scope of Work document has been generated and requires your approval. Please review the attached document.",
-				"attachmentsUi": {
-					"attachments": [
+				"formUi": {
+					"formFields": [
 						{
-							"mode": "binary",
-							"binaryPropertyName": "data"
+							"label": "Contract Title",
+							"name": "contractTitle",
+							"type": "string",
+							"required": true
+						},
+						{
+							"label": "Client Name",
+							"name": "clientName",
+							"type": "string",
+							"required": true
+						},
+						{
+							"label": "Service Category",
+							"name": "serviceCategory",
+							"type": "options",
+							"required": true,
+							"options": [
+								{
+									"name": "IT Services",
+									"value": "it_services"
+								},
+								{
+									"name": "Marketing Services",
+									"value": "marketing_services"
+								},
+								{
+									"name": "Consulting Services",
+									"value": "consulting_services"
+								}
+							]
+						},
+						{
+							"label": "Detailed Service Requirements",
+							"name": "serviceRequirements",
+							"type": "string",
+							"required": true,
+							"multiline": true
+						},
+						{
+							"label": "Project Start Date",
+							"name": "startDate",
+							"type": "date",
+							"required": true
+						},
+						{
+							"label": "Project End Date",
+							"name": "endDate",
+							"type": "date",
+							"required": true
 						}
 					]
 				}
 			},
-			"name": "Email Notification",
-			"type": "n8n-nodes-base.emailSend",
+			"id": "b0c82189-9e8a-44c2-b3a1-7e00170481f3",
+			"name": "Collect Contract Details",
+			"type": "n8n-nodes-base.form",
 			"typeVersion": 1,
 			"position": [
-				1680,
+				400,
 				300
 			]
 		},
-    {
-      "parameters": {
-        "bucket": "your_sow_archive_bucket",
-        "fileName": "sow_{{$json.contractName}}_{{$now}}.pdf",
-				"fileType": "pdf"
+		{
+			"parameters": {
+				"conditions": {
+					"string": [
+						{
+							"value1": "={{$json[\"serviceCategory\"]}}",
+							"operation": "equal",
+							"value2": "it_services"
+						}
+					]
+				}
 			},
-      "name": "Cloud Storage Archive",
-      "type": "n8n-nodes-base.s3",
+			"id": "0527408a-4b8d-434f-8126-487f2954b840",
+			"name": "If IT Services",
+			"type": "n8n-nodes-base.if",
+			"typeVersion": 1,
+			"position": [
+				620,
+				200
+			]
+		},
+		{
+			"parameters": {
+				"conditions": {
+					"string": [
+						{
+							"value1": "={{$json[\"serviceCategory\"]}}",
+							"operation": "equal",
+							"value2": "marketing_services"
+						}
+					]
+				}
+			},
+			"id": "1d74b612-16ba-45d5-b804-e46d0532742a",
+			"name": "If Marketing Services",
+			"type": "n8n-nodes-base.if",
+			"typeVersion": 1,
+			"position": [
+				620,
+				300
+			]
+		},
+		{
+			"parameters": {
+				"conditions": {
+					"string": [
+						{
+							"value1": "={{$json[\"serviceCategory\"]}}",
+							"operation": "equal",
+							"value2": "consulting_services"
+						}
+					]
+				}
+			},
+			"id": "123921a9-1e84-4f7e-9241-c21a37d51d2e",
+			"name": "If Consulting Services",
+			"type": "n8n-nodes-base.if",
+			"typeVersion": 1,
+			"position": [
+				620,
+				400
+			]
+		},
+		{
+			"parameters": {
+				"jsCode": "let itServicesSection = `\n## IT Services Section\n\nThis section outlines the scope of work specific to IT Services.\n\n-   **Service Description**:  Details about the IT service being provided, including maintenance, support, development, etc.\n-   **Specific tasks**\n  -     Task 1\n  -     Task 2\n`;\n\nreturn [{\n  json: {\n    sowSection: itServicesSection\n  }\n}];"
+			},
+			"id": "b0b89127-4e57-4a97-8547-377b51119e7e",
+			"name": "IT Services Section",
+			"type": "n8n-nodes-base.function",
+			"typeVersion": 1,
+			"position": [
+				820,
+				200
+			]
+		},
+		{
+			"parameters": {
+				"jsCode": "let marketingServicesSection = `\n## Marketing Services Section\n\nThis section outlines the scope of work specific to Marketing Services.\n\n- **Service Description**: Details about the marketing services being provided, including campaign management, social media marketing, etc.\n-   **Specific tasks**\n  -     Task 1\n  -     Task 2\n`;\n\nreturn [{\n  json: {\n    sowSection: marketingServicesSection\n  }\n}];"
+			},
+			"id": "45b15795-f091-4c5e-a75d-953e7e9d8978",
+			"name": "Marketing Services Section",
+			"type": "n8n-nodes-base.function",
+			"typeVersion": 1,
+			"position": [
+				820,
+				300
+			]
+		},
+		{
+			"parameters": {
+				"jsCode": "let consultingServicesSection = `\n## Consulting Services Section\n\nThis section outlines the scope of work specific to Consulting Services.\n\n-  **Service Description**: Details about the consulting services being provided, including advisory, analysis, etc.\n-  **Specific tasks**\n  -     Task 1\n  -     Task 2\n`;\n\nreturn [{\n  json: {\n    sowSection: consultingServicesSection\n  }\n}];"
+			},
+			"id": "295c1d1f-51d8-4b5f-b2d8-1cb7c95763d2",
+			"name": "Consulting Services Section",
+			"type": "n8n-nodes-base.function",
+			"typeVersion": 1,
+			"position": [
+				820,
+				400
+			]
+		},
+    {
+			"parameters": {
+				"values": [
+          {
+            "value": "={{$node[\"Collect Contract Details\"].json[\"contractTitle\"]}}",
+            "name": "contractTitle"
+          },
+					{
+						"value": "={{$node[\"Collect Contract Details\"].json[\"clientName\"]}}",
+						"name": "clientName"
+					},
+          {
+            "value":"={{$node[\"Collect Contract Details\"].json[\"serviceCategory\"]}}",
+            "name":"serviceCategory"
+          },
+					{
+						"value": "={{$node[\"Collect Contract Details\"].json[\"serviceRequirements\"]}}",
+						"name": "serviceRequirements"
+					},
+          {
+            "value":"={{$node[\"Collect Contract Details\"].json[\"startDate\"]}}",
+            "name":"startDate"
+          },
+          {
+            "value":"={{$node[\"Collect Contract Details\"].json[\"endDate\"]}}",
+            "name":"endDate"
+          },
+          {
+            "value":"={{$node[\"If IT Services\"].json[0].sowSection ? $node[\"If IT Services\"].json[0].sowSection : ($node[\"If Marketing Services\"].json[0].sowSection ? $node[\"If Marketing Services\"].json[0].sowSection : $node[\"If Consulting Services\"].json[0].sowSection )}}",
+            "name":"sowSection"
+          }
+
+				]
+			},
+			"id": "84b12907-4005-490f-9717-591b13493d0c",
+			"name": "Set SOW Variables",
+			"type": "n8n-nodes-base.set",
+			"typeVersion": 1,
+			"position": [
+				1000,
+				300
+			]
+		},
+		{
+      "parameters": {
+        "template": "## Scope of Work \n\n### Contract Details\n\n-   **Contract Title**: {{$json.contractTitle}}\n-   **Client Name**: {{$json.clientName}}\n-   **Service Category**: {{$json.serviceCategory}}\n-  **Project Start Date:** {{$json.startDate}}\n-   **Project End Date**: {{$json.endDate}}\n\n### Service Requirements\n\n{{$json.serviceRequirements}}\n\n\n{{$json.sowSection}}"
+      },
+      "id": "16d3c373-c8b9-4a87-912f-7277160707b1",
+      "name": "Generate SOW Content",
+      "type": "n8n-nodes-base.set",
       "typeVersion": 1,
       "position": [
-				1680,
-				450
-			]
+        1200,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "ScopeOfWork_{{$node[\"Set SOW Variables\"].json[\"clientName\"]}}_{{$node[\"Set SOW Variables\"].json[\"contractTitle\"]}}.md",
+        "content": "={{$json.template}}"
+      },
+      "id": "42a801d5-42bc-4345-8bb8-112b203e9f46",
+      "name": "Create Markdown File",
+      "type": "n8n-nodes-base.writeFile",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "New SOW Created: {{$node[\"Set SOW Variables\"].json[\"contractTitle\"]}} for {{$node[\"Set SOW Variables\"].json[\"clientName\"]}}",
+        "text": "A new scope of work document has been generated. File available for download at  {{$node[\"Create Markdown File\"].json[\"filePath\"]}}",
+        "toEmail": "your_email@example.com"
+      },
+      "id": "0d7835f5-d8f6-4802-9504-ab0c4f88e3f9",
+      "name": "Send Notification Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        300
+      ]
     }
 	],
 	"connections": {
-		"Start": {
+		"9496497c-42d3-4c17-86f8-16c56a6f6693": {
 			"main": [
 				[
-					"Form Input",
+					"b0c82189-9e8a-44c2-b3a1-7e00170481f3",
 					0
 				]
 			]
 		},
-		"Form Input": {
+		"b0c82189-9e8a-44c2-b3a1-7e00170481f3": {
 			"main": [
 				[
-					"Data Validation",
-					0
-				]
-			]
-		},
-		"Data Validation": {
-			"main": [
-				[
-					"Set Form Data",
-					0
-				]
-			]
-		},
-    "Set Form Data": {
-      "main": [
-        [
-          "Analyze Historical Data",
-          0
-        ]
-      ]
-    },
-    "Fetch Historical SoW": {
-      "main": [
-        [
-           "Analyze Historical Data",
-          1
-        ]
-      ]
-    },
-    "Analyze Historical Data":{
-      "main":[
-        [
-          "Google Docs Integration",
-          0
-        ]
-      ]
-    },
-		"Google Docs Integration": {
-			"main": [
-				[
-					"Email Notification",
+					"0527408a-4b8d-434f-8126-487f2954b840",
 					0
 				],
         [
-          "Cloud Storage Archive",
+					"1d74b612-16ba-45d5-b804-e46d0532742a",
+					0
+				],
+        [
+					"123921a9-1e84-4f7e-9241-c21a37d51d2e",
+					0
+				]
+
+			]
+		},
+		"0527408a-4b8d-434f-8126-487f2954b840": {
+			"true": [
+				[
+					"b0b89127-4e57-4a97-8547-377b51119e7e",
+					0
+				]
+			]
+		},
+    "1d74b612-16ba-45d5-b804-e46d0532742a": {
+			"true": [
+				[
+					"45b15795-f091-4c5e-a75d-953e7e9d8978",
+					0
+				]
+			]
+		},
+    "123921a9-1e84-4f7e-9241-c21a37d51d2e": {
+			"true": [
+				[
+					"295c1d1f-51d8-4b5f-b2d8-1cb7c95763d2",
+					0
+				]
+			]
+		},
+		"b0b89127-4e57-4a97-8547-377b51119e7e": {
+			"main": [
+				[
+					"84b12907-4005-490f-9717-591b13493d0c",
+					0
+				]
+			]
+		},
+		"45b15795-f091-4c5e-a75d-953e7e9d8978": {
+			"main": [
+				[
+					"84b12907-4005-490f-9717-591b13493d0c",
+					0
+				]
+			]
+		},
+		"295c1d1f-51d8-4b5f-b2d8-1cb7c95763d2": {
+			"main": [
+				[
+					"84b12907-4005-490f-9717-591b13493d0c",
+					0
+				]
+			]
+		},
+    "84b12907-4005-490f-9717-591b13493d0c": {
+			"main": [
+				[
+					"16d3c373-c8b9-4a87-912f-7277160707b1",
+					0
+				]
+			]
+		},
+    "16d3c373-c8b9-4a87-912f-7277160707b1": {
+      "main":[
+        [
+          "42a801d5-42bc-4345-8bb8-112b203e9f46",
           0
         ]
-			]
-		}
+      ]
+    },
+    "42a801d5-42bc-4345-8bb8-112b203e9f46": {
+      "main":[
+        [
+          "0d7835f5-d8f6-4802-9504-ab0c4f88e3f9",
+           0
+        ]
+      ]
+    }
 	}
 }
 
