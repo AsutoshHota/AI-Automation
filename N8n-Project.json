@@ -5,10 +5,10 @@
 			"parameters": {},
 			"name": "Start",
 			"type": "n8n-nodes-base.start",
-			"typeVersion": 1,
+			"typeVersion": 2.2,
 			"position": [
-				-780,
-				300
+				0,
+				0
 			]
 		},
 		{
