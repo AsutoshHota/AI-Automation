@@ -1,371 +1,384 @@
 
 {
-	"nodes": [
-		{
-			"parameters": {},
-			"id": "9496497c-42d3-4c17-86f8-16c56a6f6693",
-			"name": "Start",
-			"type": "n8n-nodes-base.start",
-			"typeVersion": 1,
-			"position": [
-				180,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"formUi": {
-					"formFields": [
-						{
-							"label": "Contract Title",
-							"name": "contractTitle",
-							"type": "string",
-							"required": true
-						},
-						{
-							"label": "Client Name",
-							"name": "clientName",
-							"type": "string",
-							"required": true
-						},
-						{
-							"label": "Service Category",
-							"name": "serviceCategory",
-							"type": "options",
-							"required": true,
-							"options": [
-								{
-									"name": "IT Services",
-									"value": "it_services"
-								},
-								{
-									"name": "Marketing Services",
-									"value": "marketing_services"
-								},
-								{
-									"name": "Consulting Services",
-									"value": "consulting_services"
-								}
-							]
-						},
-						{
-							"label": "Detailed Service Requirements",
-							"name": "serviceRequirements",
-							"type": "string",
-							"required": true,
-							"multiline": true
-						},
-						{
-							"label": "Project Start Date",
-							"name": "startDate",
-							"type": "date",
-							"required": true
-						},
-						{
-							"label": "Project End Date",
-							"name": "endDate",
-							"type": "date",
-							"required": true
-						}
-					]
-				}
-			},
-			"id": "b0c82189-9e8a-44c2-b3a1-7e00170481f3",
-			"name": "Collect Contract Details",
-			"type": "n8n-nodes-base.form",
-			"typeVersion": 1,
-			"position": [
-				400,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"conditions": {
-					"string": [
-						{
-							"value1": "={{$json[\"serviceCategory\"]}}",
-							"operation": "equal",
-							"value2": "it_services"
-						}
-					]
-				}
-			},
-			"id": "0527408a-4b8d-434f-8126-487f2954b840",
-			"name": "If IT Services",
-			"type": "n8n-nodes-base.if",
-			"typeVersion": 1,
-			"position": [
-				620,
-				200
-			]
-		},
-		{
-			"parameters": {
-				"conditions": {
-					"string": [
-						{
-							"value1": "={{$json[\"serviceCategory\"]}}",
-							"operation": "equal",
-							"value2": "marketing_services"
-						}
-					]
-				}
-			},
-			"id": "1d74b612-16ba-45d5-b804-e46d0532742a",
-			"name": "If Marketing Services",
-			"type": "n8n-nodes-base.if",
-			"typeVersion": 1,
-			"position": [
-				620,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"conditions": {
-					"string": [
-						{
-							"value1": "={{$json[\"serviceCategory\"]}}",
-							"operation": "equal",
-							"value2": "consulting_services"
-						}
-					]
-				}
-			},
-			"id": "123921a9-1e84-4f7e-9241-c21a37d51d2e",
-			"name": "If Consulting Services",
-			"type": "n8n-nodes-base.if",
-			"typeVersion": 1,
-			"position": [
-				620,
-				400
-			]
-		},
-		{
-			"parameters": {
-				"jsCode": "let itServicesSection = `\n## IT Services Section\n\nThis section outlines the scope of work specific to IT Services.\n\n-   **Service Description**:  Details about the IT service being provided, including maintenance, support, development, etc.\n-   **Specific tasks**\n  -     Task 1\n  -     Task 2\n`;\n\nreturn [{\n  json: {\n    sowSection: itServicesSection\n  }\n}];"
-			},
-			"id": "b0b89127-4e57-4a97-8547-377b51119e7e",
-			"name": "IT Services Section",
-			"type": "n8n-nodes-base.function",
-			"typeVersion": 1,
-			"position": [
-				820,
-				200
-			]
-		},
-		{
-			"parameters": {
-				"jsCode": "let marketingServicesSection = `\n## Marketing Services Section\n\nThis section outlines the scope of work specific to Marketing Services.\n\n- **Service Description**: Details about the marketing services being provided, including campaign management, social media marketing, etc.\n-   **Specific tasks**\n  -     Task 1\n  -     Task 2\n`;\n\nreturn [{\n  json: {\n    sowSection: marketingServicesSection\n  }\n}];"
-			},
-			"id": "45b15795-f091-4c5e-a75d-953e7e9d8978",
-			"name": "Marketing Services Section",
-			"type": "n8n-nodes-base.function",
-			"typeVersion": 1,
-			"position": [
-				820,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"jsCode": "let consultingServicesSection = `\n## Consulting Services Section\n\nThis section outlines the scope of work specific to Consulting Services.\n\n-  **Service Description**: Details about the consulting services being provided, including advisory, analysis, etc.\n-  **Specific tasks**\n  -     Task 1\n  -     Task 2\n`;\n\nreturn [{\n  json: {\n    sowSection: consultingServicesSection\n  }\n}];"
-			},
-			"id": "295c1d1f-51d8-4b5f-b2d8-1cb7c95763d2",
-			"name": "Consulting Services Section",
-			"type": "n8n-nodes-base.function",
-			"typeVersion": 1,
-			"position": [
-				820,
-				400
-			]
-		},
+  "nodes": [
     {
-			"parameters": {
-				"values": [
-          {
-            "value": "={{$node[\"Collect Contract Details\"].json[\"contractTitle\"]}}",
-            "name": "contractTitle"
-          },
-					{
-						"value": "={{$node[\"Collect Contract Details\"].json[\"clientName\"]}}",
-						"name": "clientName"
-					},
-          {
-            "value":"={{$node[\"Collect Contract Details\"].json[\"serviceCategory\"]}}",
-            "name":"serviceCategory"
-          },
-					{
-						"value": "={{$node[\"Collect Contract Details\"].json[\"serviceRequirements\"]}}",
-						"name": "serviceRequirements"
-					},
-          {
-            "value":"={{$node[\"Collect Contract Details\"].json[\"startDate\"]}}",
-            "name":"startDate"
-          },
-          {
-            "value":"={{$node[\"Collect Contract Details\"].json[\"endDate\"]}}",
-            "name":"endDate"
-          },
-          {
-            "value":"={{$node[\"If IT Services\"].json[0].sowSection ? $node[\"If IT Services\"].json[0].sowSection : ($node[\"If Marketing Services\"].json[0].sowSection ? $node[\"If Marketing Services\"].json[0].sowSection : $node[\"If Consulting Services\"].json[0].sowSection )}}",
-            "name":"sowSection"
-          }
-
-				]
-			},
-			"id": "84b12907-4005-490f-9717-591b13493d0c",
-			"name": "Set SOW Variables",
-			"type": "n8n-nodes-base.set",
-			"typeVersion": 1,
-			"position": [
-				1000,
-				300
-			]
-		},
-		{
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        100,
+        300
+      ]
+    },
+    {
       "parameters": {
-        "template": "## Scope of Work \n\n### Contract Details\n\n-   **Contract Title**: {{$json.contractTitle}}\n-   **Client Name**: {{$json.clientName}}\n-   **Service Category**: {{$json.serviceCategory}}\n-  **Project Start Date:** {{$json.startDate}}\n-   **Project End Date**: {{$json.endDate}}\n\n### Service Requirements\n\n{{$json.serviceRequirements}}\n\n\n{{$json.sowSection}}"
+        "formUi": {
+          "fields": [
+            {
+              "key": "contractName",
+              "label": "Contract Name",
+              "type": "string"
+            },
+            {
+                "key": "clientName",
+                "label": "Client Name",
+                "type": "string"
+            },
+            {
+                "key": "serviceCategory",
+                "label": "Service Category",
+                "type": "options",
+                 "options": [
+                  {
+                    "name": "Consulting",
+                    "value": "consulting"
+                  },
+                  {
+                     "name": "Development",
+                     "value": "development"
+                   },
+                   {
+                      "name": "Maintenance",
+                      "value": "maintenance"
+                    }
+                ]
+             },
+            {
+              "key": "startDate",
+              "label": "Start Date",
+              "type": "date"
+            },
+            {
+              "key": "endDate",
+              "label": "End Date",
+              "type": "date"
+            },
+            {
+              "key": "serviceRequirements",
+              "label": "Service Requirements",
+              "type": "text"
+            }
+          ]
+        }
       },
-      "id": "16d3c373-c8b9-4a87-912f-7277160707b1",
-      "name": "Generate SOW Content",
+      "name": "Collect Input Form",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        300,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": [
+          {
+            "json": "={\n  \"contractName\": $node[\"Collect Input Form\"].json[\"contractName\"],\n  \"clientName\": $node[\"Collect Input Form\"].json[\"clientName\"],\n  \"serviceCategory\": $node[\"Collect Input Form\"].json[\"serviceCategory\"],\n   \"startDate\": $node[\"Collect Input Form\"].json[\"startDate\"],\n  \"endDate\": $node[\"Collect Input Form\"].json[\"endDate\"],\n  \"serviceRequirements\": $node[\"Collect Input Form\"].json[\"serviceRequirements\"]\n}"
+          }
+        ],
+        "options": {}
+      },
+      "name": "Set Input Variables",
       "type": "n8n-nodes-base.set",
       "typeVersion": 1,
       "position": [
-        1200,
+        500,
         300
       ]
     },
     {
       "parameters": {
-        "fileName": "ScopeOfWork_{{$node[\"Set SOW Variables\"].json[\"clientName\"]}}_{{$node[\"Set SOW Variables\"].json[\"contractTitle\"]}}.md",
-        "content": "={{$json.template}}"
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.serviceCategory}}",
+              "operation": "equals",
+              "value2": "consulting"
+            }
+          ]
+        }
       },
-      "id": "42a801d5-42bc-4345-8bb8-112b203e9f46",
-      "name": "Create Markdown File",
+      "name": "Service Category Router",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        700,
+        300
+      ]
+    },
+    {
+        "parameters": {
+           "additionalFields": {
+                "json": "{\n \"introduction\": \"This Scope of Work (SoW) details the services to be provided under the [Contract Name] contract, between the [Client Name] and the service provider. \",\n   \"serviceDescription\": \"The consulting service includes detailed analysis, strategic planning and advice delivery.\",\n   \"deliverables\": \"Consulting reports, strategy documents, analysis presentations.\"\n}\n"
+           }
+        },
+      "name": "Consulting Template",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+       "position": [
+        900,
+        200
+      ]
+    },
+     {
+        "parameters": {
+           "additionalFields": {
+                "json": "{\n \"introduction\": \"This Scope of Work (SoW) details the services to be provided under the [Contract Name] contract, between the [Client Name] and the service provider. \",\n   \"serviceDescription\": \"The development service includes custom code development, testing and integration services.\",\n   \"deliverables\": \"Application Code, test reports, user manuals.\"\n}\n"
+           }
+        },
+      "name": "Development Template",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+       "position": [
+        900,
+        400
+      ]
+    },
+        {
+        "parameters": {
+           "additionalFields": {
+                "json": "{\n \"introduction\": \"This Scope of Work (SoW) details the services to be provided under the [Contract Name] contract, between the [Client Name] and the service provider. \",\n   \"serviceDescription\": \"The maintenance service includes bug fixing, system monitoring and application maintenance.\",\n   \"deliverables\": \"Bug fix reports, system performance reports, maintenance logs.\"\n}\n"
+           }
+        },
+      "name": "Maintenance Template",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+       "position": [
+        900,
+        600
+      ]
+    },
+    {
+      "parameters": {
+        "join": [
+          {
+            "mode": "append",
+            "values": [
+              {
+                "json": "={{$node[\"Set Input Variables\"].json}}"
+              },
+              {
+                "json": "={{$node[\"Consulting Template\"].json}}"
+              }
+            ]
+          }
+        ],
+         "options": {}
+      },
+      "name": "Combine Consulting Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+       "position": [
+        1100,
+        200
+      ]
+    },
+     {
+      "parameters": {
+        "join": [
+          {
+            "mode": "append",
+            "values": [
+              {
+                "json": "={{$node[\"Set Input Variables\"].json}}"
+              },
+              {
+                "json": "={{$node[\"Development Template\"].json}}"
+              }
+            ]
+          }
+        ],
+        "options": {}
+      },
+      "name": "Combine Development Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+        "position": [
+        1100,
+        400
+      ]
+    },
+      {
+      "parameters": {
+        "join": [
+          {
+            "mode": "append",
+            "values": [
+              {
+                "json": "={{$node[\"Set Input Variables\"].json}}"
+              },
+              {
+                "json": "={{$node[\"Maintenance Template\"].json}}"
+              }
+            ]
+          }
+        ],
+        "options": {}
+      },
+      "name": "Combine Maintenance Output",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1100,
+        600
+      ]
+    },
+      {
+      "parameters": {
+          "options": {
+            "merge": true
+          }
+      },
+      "name": "Merge All Outputs",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+       "position": [
+         1300,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "text": "\nContract Name: {{$json.contractName}}\nClient Name: {{$json.clientName}}\nService Category: {{$json.serviceCategory}}\nStart Date: {{$json.startDate}}\nEnd Date: {{$json.endDate}}\nService Requirements: {{$json.serviceRequirements}}\n\nIntroduction: {{$json.introduction}}\nService Description: {{$json.serviceDescription}}\nDeliverables: {{$json.deliverables}}\n"
+      },
+      "name": "Format Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+       "position": [
+         1500,
+        400
+      ]
+    },
+      {
+      "parameters": {
+        "fileName": "sow_{{$now.toFormat(\"yyyyMMddHHmmss\")}}",
+        "fileFormat": "txt",
+        "fileContent": "={{$node[\"Format Text\"].code}}"
+      },
+      "name": "Write File",
       "type": "n8n-nodes-base.writeFile",
       "typeVersion": 1,
-      "position": [
-        1400,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "subject": "New SOW Created: {{$node[\"Set SOW Variables\"].json[\"contractTitle\"]}} for {{$node[\"Set SOW Variables\"].json[\"clientName\"]}}",
-        "text": "A new scope of work document has been generated. File available for download at  {{$node[\"Create Markdown File\"].json[\"filePath\"]}}",
-        "toEmail": "your_email@example.com"
-      },
-      "id": "0d7835f5-d8f6-4802-9504-ab0c4f88e3f9",
-      "name": "Send Notification Email",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 1,
-      "position": [
-        1600,
-        300
+       "position": [
+        1700,
+        400
       ]
     }
-	],
-	"connections": {
-		"9496497c-42d3-4c17-86f8-16c56a6f6693": {
-			"main": [
-				[
-					"b0c82189-9e8a-44c2-b3a1-7e00170481f3",
-					0
-				]
-			]
-		},
-		"b0c82189-9e8a-44c2-b3a1-7e00170481f3": {
-			"main": [
-				[
-					"0527408a-4b8d-434f-8126-487f2954b840",
-					0
-				],
+  ],
+  "connections": {
+    "Start": {
+      "main": [
         [
-					"1d74b612-16ba-45d5-b804-e46d0532742a",
-					0
-				],
-        [
-					"123921a9-1e84-4f7e-9241-c21a37d51d2e",
-					0
-				]
-
-			]
-		},
-		"0527408a-4b8d-434f-8126-487f2954b840": {
-			"true": [
-				[
-					"b0b89127-4e57-4a97-8547-377b51119e7e",
-					0
-				]
-			]
-		},
-    "1d74b612-16ba-45d5-b804-e46d0532742a": {
-			"true": [
-				[
-					"45b15795-f091-4c5e-a75d-953e7e9d8978",
-					0
-				]
-			]
-		},
-    "123921a9-1e84-4f7e-9241-c21a37d51d2e": {
-			"true": [
-				[
-					"295c1d1f-51d8-4b5f-b2d8-1cb7c95763d2",
-					0
-				]
-			]
-		},
-		"b0b89127-4e57-4a97-8547-377b51119e7e": {
-			"main": [
-				[
-					"84b12907-4005-490f-9717-591b13493d0c",
-					0
-				]
-			]
-		},
-		"45b15795-f091-4c5e-a75d-953e7e9d8978": {
-			"main": [
-				[
-					"84b12907-4005-490f-9717-591b13493d0c",
-					0
-				]
-			]
-		},
-		"295c1d1f-51d8-4b5f-b2d8-1cb7c95763d2": {
-			"main": [
-				[
-					"84b12907-4005-490f-9717-591b13493d0c",
-					0
-				]
-			]
-		},
-    "84b12907-4005-490f-9717-591b13493d0c": {
-			"main": [
-				[
-					"16d3c373-c8b9-4a87-912f-7277160707b1",
-					0
-				]
-			]
-		},
-    "16d3c373-c8b9-4a87-912f-7277160707b1": {
-      "main":[
-        [
-          "42a801d5-42bc-4345-8bb8-112b203e9f46",
+          "Collect Input Form",
           0
         ]
       ]
     },
-    "42a801d5-42bc-4345-8bb8-112b203e9f46": {
-      "main":[
+    "Collect Input Form": {
+      "main": [
         [
-          "0d7835f5-d8f6-4802-9504-ab0c4f88e3f9",
-           0
+          "Set Input Variables",
+          0
+        ]
+      ]
+    },
+    "Set Input Variables": {
+      "main": [
+        [
+          "Service Category Router",
+          0
+        ]
+      ]
+    },
+    "Service Category Router": {
+      "main": [
+        [
+          "Consulting Template",
+          0
+        ]
+      ],
+       "true": [
+          [
+            "Combine Consulting Output",
+             0
+          ]
+         ],
+         "false": [
+              [
+                "Development Template",
+               0
+             ],
+             [
+                "Maintenance Template",
+                0
+             ]
+          ]
+    },
+       "Consulting Template": {
+        "main": [
+            [
+              "Combine Consulting Output",
+              1
+            ]
+          ]
+       },
+         "Development Template": {
+          "main": [
+            [
+              "Combine Development Output",
+              1
+            ]
+          ]
+       },
+          "Maintenance Template": {
+            "main": [
+               [
+                "Combine Maintenance Output",
+                1
+              ]
+           ]
+          },
+        "Combine Consulting Output": {
+           "main":[
+             [
+                 "Merge All Outputs",
+                 0
+             ]
+            ]
+        },
+      "Combine Development Output": {
+          "main":[
+             [
+                 "Merge All Outputs",
+                 1
+             ]
+           ]
+      },
+       "Combine Maintenance Output": {
+           "main":[
+             [
+                 "Merge All Outputs",
+                 2
+             ]
+            ]
+      },
+        "Merge All Outputs": {
+          "main":[
+            [
+                "Format Text",
+                0
+            ]
+           ]
+        },
+    "Format Text": {
+      "main": [
+        [
+          "Write File",
+          0
         ]
       ]
     }
-	}
+  }
 }
 
 
