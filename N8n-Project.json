@@ -1,384 +1,224 @@
 
 {
-  "nodes": [
-    {
-      "parameters": {},
-      "name": "Start",
-      "type": "n8n-nodes-base.start",
-      "typeVersion": 1,
-      "position": [
-        100,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "formUi": {
-          "fields": [
-            {
-              "key": "contractName",
-              "label": "Contract Name",
-              "type": "string"
-            },
-            {
-                "key": "clientName",
-                "label": "Client Name",
-                "type": "string"
-            },
-            {
-                "key": "serviceCategory",
-                "label": "Service Category",
-                "type": "options",
-                 "options": [
-                  {
-                    "name": "Consulting",
-                    "value": "consulting"
-                  },
-                  {
-                     "name": "Development",
-                     "value": "development"
-                   },
-                   {
-                      "name": "Maintenance",
-                      "value": "maintenance"
-                    }
-                ]
-             },
-            {
-              "key": "startDate",
-              "label": "Start Date",
-              "type": "date"
-            },
-            {
-              "key": "endDate",
-              "label": "End Date",
-              "type": "date"
-            },
-            {
-              "key": "serviceRequirements",
-              "label": "Service Requirements",
-              "type": "text"
-            }
-          ]
-        }
-      },
-      "name": "Collect Input Form",
-      "type": "n8n-nodes-base.form",
-      "typeVersion": 1,
-      "position": [
-        300,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "values": [
-          {
-            "json": "={\n  \"contractName\": $node[\"Collect Input Form\"].json[\"contractName\"],\n  \"clientName\": $node[\"Collect Input Form\"].json[\"clientName\"],\n  \"serviceCategory\": $node[\"Collect Input Form\"].json[\"serviceCategory\"],\n   \"startDate\": $node[\"Collect Input Form\"].json[\"startDate\"],\n  \"endDate\": $node[\"Collect Input Form\"].json[\"endDate\"],\n  \"serviceRequirements\": $node[\"Collect Input Form\"].json[\"serviceRequirements\"]\n}"
-          }
-        ],
-        "options": {}
-      },
-      "name": "Set Input Variables",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-      "position": [
-        500,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{$json.serviceCategory}}",
-              "operation": "equals",
-              "value2": "consulting"
-            }
-          ]
-        }
-      },
-      "name": "Service Category Router",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-      "position": [
-        700,
-        300
-      ]
-    },
-    {
-        "parameters": {
-           "additionalFields": {
-                "json": "{\n \"introduction\": \"This Scope of Work (SoW) details the services to be provided under the [Contract Name] contract, between the [Client Name] and the service provider. \",\n   \"serviceDescription\": \"The consulting service includes detailed analysis, strategic planning and advice delivery.\",\n   \"deliverables\": \"Consulting reports, strategy documents, analysis presentations.\"\n}\n"
-           }
-        },
-      "name": "Consulting Template",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-       "position": [
-        900,
-        200
-      ]
-    },
-     {
-        "parameters": {
-           "additionalFields": {
-                "json": "{\n \"introduction\": \"This Scope of Work (SoW) details the services to be provided under the [Contract Name] contract, between the [Client Name] and the service provider. \",\n   \"serviceDescription\": \"The development service includes custom code development, testing and integration services.\",\n   \"deliverables\": \"Application Code, test reports, user manuals.\"\n}\n"
-           }
-        },
-      "name": "Development Template",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-       "position": [
-        900,
-        400
-      ]
-    },
+	"nodes": [
+		{
+			"parameters": {},
+			"name": "Start",
+			"type": "n8n-nodes-base.start",
+			"typeVersion": 1,
+			"position": [
+				-780,
+				300
+			]
+		},
+		{
+			"parameters": {
+				"formUi": {
+					"options": [
+						{
+							"label": "Contract Title",
+							"name": "contractTitle",
+							"type": "string",
+							"required": true,
+							"description": "Enter the title of the contract."
+						},
+						{
+							"label": "Client Name",
+							"name": "clientName",
+							"type": "string",
+							"required": true,
+							"description": "Enter the name of the client."
+						},
+						{
+							"label": "Service Category",
+							"name": "serviceCategory",
+							"type": "options",
+							"required": true,
+							"options": [
+								{
+									"name": "Software Development",
+									"value": "softwareDevelopment"
+								},
+								{
+									"name": "Marketing",
+									"value": "marketing"
+								},
+								{
+									"name": "Consulting",
+									"value": "consulting"
+								}
+							],
+							"description": "Choose the category of service."
+						},
+						{
+							"label": "Start Date",
+							"name": "startDate",
+							"type": "date",
+							"required": true,
+							"description": "Enter the start date of the service contract."
+						},
+                         {
+                            "label": "End Date",
+                            "name": "endDate",
+                            "type": "date",
+                            "required": true,
+                            "description": "Enter the end date of the service contract."
+                         },
+						{
+							"label": "Service Requirements",
+							"name": "serviceRequirements",
+							"type": "string",
+							"required": true,
+							"typeOptions": {
+                                "rows": 5
+                            },
+							"description": "Describe the detailed requirements for this service contract."
+						}
+					],
+					"title": "SOW Input Form"
+				}
+			},
+			"name": "Input Form",
+			"type": "n8n-nodes-base.form",
+			"typeVersion": 1,
+			"position": [
+				-560,
+				300
+			]
+		},
+		{
+			"parameters": {
+				"functionCode": "const serviceCategory = $json.serviceCategory;\nlet clauses = {};\n\n// Dynamic clauses based on service category\nswitch (serviceCategory) {\n  case 'softwareDevelopment':\n    clauses = {\n      \"deliverables\": \"Detailed specifications, code repositories, testing reports\",\n      \"acceptanceCriteria\": \"Successful passing of all acceptance tests\",\n       \"reporting\": \"Bi-weekly progress reports\"\n    };\n    break;\n  case 'marketing':\n    clauses = {\n      \"deliverables\": \"Marketing strategy, campaign assets, performance reports\",\n      \"acceptanceCriteria\": \"Achieving key performance indicators (KPIs)\",\n      \"reporting\": \"Monthly campaign performance reports\"\n    };\n    break;\n  case 'consulting':\n    clauses = {\n      \"deliverables\": \"Consulting reports, strategic recommendations, workshop presentations\",\n      \"acceptanceCriteria\": \"Completion of agreed milestones\",\n       \"reporting\": \"Summary reports after each consultation session\"\n    };\n    break;\n  default:\n    clauses = {\"deliverables\": \"N/A\", \"acceptanceCriteria\": \"N/A\", \"reporting\":\"N/A\"};\n}\n\n\nreturn {\n  json: {\n    ...$json,\n    clauses\n  }\n};"
+			},
+			"name": "Dynamic Clause Generation",
+			"type": "n8n-nodes-base.function",
+			"typeVersion": 1,
+			"position": [
+				-340,
+				300
+			]
+		},
         {
-        "parameters": {
-           "additionalFields": {
-                "json": "{\n \"introduction\": \"This Scope of Work (SoW) details the services to be provided under the [Contract Name] contract, between the [Client Name] and the service provider. \",\n   \"serviceDescription\": \"The maintenance service includes bug fixing, system monitoring and application maintenance.\",\n   \"deliverables\": \"Bug fix reports, system performance reports, maintenance logs.\"\n}\n"
+            "parameters": {
+              "operation": "create",
+              "resource": "document",
+              "documentFormat": "docx",
+              "fileName": "={{$json[\"contractTitle\"]}} - SOW",
+              "fileContent": "## Scope of Work: {{$json.contractTitle}}\n\n**Client Name:** {{$json.clientName}}\n\n**Service Category:** {{$json.serviceCategory}}\n\n**Start Date:** {{$json.startDate}}\n\n**End Date:** {{$json.endDate}}\n\n### Service Requirements:\n\n{{$json.serviceRequirements}}\n\n### Deliverables:\n\n{{$json.clauses.deliverables}}\n\n### Acceptance Criteria:\n\n{{$json.clauses.acceptanceCriteria}}\n\n### Reporting Requirements:\n\n{{$json.clauses.reporting}}"
+            },
+            "name": "Create Document",
+            "type": "n8n-nodes-base.googleDocs",
+            "typeVersion": 1,
+            "position": [
+              -120,
+              300
+            ],
+            "credentials": {
+              "googleDocsOAuth2Api": {
+                  "id": "10",
+                  "name": "Google Docs account"
+              }
            }
         },
-      "name": "Maintenance Template",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-       "position": [
-        900,
-        600
-      ]
-    },
-    {
-      "parameters": {
-        "join": [
-          {
-            "mode": "append",
-            "values": [
-              {
-                "json": "={{$node[\"Set Input Variables\"].json}}"
-              },
-              {
-                "json": "={{$node[\"Consulting Template\"].json}}"
-              }
-            ]
-          }
-        ],
-         "options": {}
-      },
-      "name": "Combine Consulting Output",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-       "position": [
-        1100,
-        200
-      ]
-    },
-     {
-      "parameters": {
-        "join": [
-          {
-            "mode": "append",
-            "values": [
-              {
-                "json": "={{$node[\"Set Input Variables\"].json}}"
-              },
-              {
-                "json": "={{$node[\"Development Template\"].json}}"
-              }
-            ]
-          }
-        ],
-        "options": {}
-      },
-      "name": "Combine Development Output",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-        "position": [
-        1100,
-        400
-      ]
-    },
-      {
-      "parameters": {
-        "join": [
-          {
-            "mode": "append",
-            "values": [
-              {
-                "json": "={{$node[\"Set Input Variables\"].json}}"
-              },
-              {
-                "json": "={{$node[\"Maintenance Template\"].json}}"
-              }
-            ]
-          }
-        ],
-        "options": {}
-      },
-      "name": "Combine Maintenance Output",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-      "position": [
-        1100,
-        600
-      ]
-    },
-      {
-      "parameters": {
-          "options": {
-            "merge": true
-          }
-      },
-      "name": "Merge All Outputs",
-      "type": "n8n-nodes-base.merge",
-      "typeVersion": 1,
-       "position": [
-         1300,
-        400
-      ]
-    },
-    {
-      "parameters": {
-        "text": "\nContract Name: {{$json.contractName}}\nClient Name: {{$json.clientName}}\nService Category: {{$json.serviceCategory}}\nStart Date: {{$json.startDate}}\nEnd Date: {{$json.endDate}}\nService Requirements: {{$json.serviceRequirements}}\n\nIntroduction: {{$json.introduction}}\nService Description: {{$json.serviceDescription}}\nDeliverables: {{$json.deliverables}}\n"
-      },
-      "name": "Format Text",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 1,
-       "position": [
-         1500,
-        400
-      ]
-    },
-      {
-      "parameters": {
-        "fileName": "sow_{{$now.toFormat(\"yyyyMMddHHmmss\")}}",
-        "fileFormat": "txt",
-        "fileContent": "={{$node[\"Format Text\"].code}}"
-      },
-      "name": "Write File",
-      "type": "n8n-nodes-base.writeFile",
-      "typeVersion": 1,
-       "position": [
-        1700,
-        400
-      ]
-    }
-  ],
-  "connections": {
-    "Start": {
-      "main": [
-        [
-          "Collect Input Form",
-          0
-        ]
-      ]
-    },
-    "Collect Input Form": {
-      "main": [
-        [
-          "Set Input Variables",
-          0
-        ]
-      ]
-    },
-    "Set Input Variables": {
-      "main": [
-        [
-          "Service Category Router",
-          0
-        ]
-      ]
-    },
-    "Service Category Router": {
-      "main": [
-        [
-          "Consulting Template",
-          0
-        ]
-      ],
-       "true": [
-          [
-            "Combine Consulting Output",
-             0
-          ]
-         ],
-         "false": [
-              [
-                "Development Template",
-               0
-             ],
-             [
-                "Maintenance Template",
-                0
-             ]
-          ]
-    },
-       "Consulting Template": {
-        "main": [
-            [
-              "Combine Consulting Output",
-              1
-            ]
-          ]
-       },
-         "Development Template": {
-          "main": [
-            [
-              "Combine Development Output",
-              1
-            ]
-          ]
-       },
-          "Maintenance Template": {
-            "main": [
-               [
-                "Combine Maintenance Output",
-                1
-              ]
-           ]
-          },
-        "Combine Consulting Output": {
-           "main":[
-             [
-                 "Merge All Outputs",
-                 0
-             ]
-            ]
-        },
-      "Combine Development Output": {
-          "main":[
-             [
-                 "Merge All Outputs",
-                 1
-             ]
-           ]
-      },
-       "Combine Maintenance Output": {
-           "main":[
-             [
-                 "Merge All Outputs",
-                 2
-             ]
-            ]
-      },
-        "Merge All Outputs": {
-          "main":[
-            [
-                "Format Text",
-                0
-            ]
-           ]
-        },
-    "Format Text": {
-      "main": [
-        [
-          "Write File",
-          0
-        ]
-      ]
-    }
-  }
+        {
+			"parameters": {
+				"emailSubject": "New Scope of Work Document for {{$json.contractTitle}}",
+				"emailBody": "A new Scope of Work document has been generated for {{$json.contractTitle}}.\n\nPlease find the document attached.\n\n\n",
+                "attachments": [
+                    {
+                      "mode": "file",
+                      "file": "={{$json.file}}"
+                    }
+                  ],
+				"toEmail": "your-email@example.com"
+			},
+			"name": "Send Email",
+			"type": "n8n-nodes-base.emailSend",
+			"typeVersion": 1,
+			"position": [
+				100,
+				300
+			],
+            "credentials": {
+				"smtp": {
+                    "id": "12",
+                    "name": "SMTP account"
+                }
+			}
+		},
+        {
+			"parameters": {
+              "operation": "upload",
+              "folderId": "your-google-drive-folder-id",
+              "file": "={{$json.file}}",
+               "fileName": "={{$json[\"contractTitle\"]}} - SOW"
+            },
+			"name": "Upload to Google Drive",
+			"type": "n8n-nodes-base.googleDrive",
+			"typeVersion": 1,
+			"position": [
+				100,
+                440
+			],
+            "credentials": {
+				"googleDriveOAuth2Api": {
+                    "id": "11",
+                    "name": "Google Drive account"
+                }
+			}
+		}
+	],
+	"connections": {
+		"Start": {
+			"main": [
+				[
+					{
+						"node": "Input Form",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Input Form": {
+			"main": [
+				[
+					{
+						"node": "Dynamic Clause Generation",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Dynamic Clause Generation": {
+			"main": [
+				[
+					{
+						"node": "Create Document",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		},
+		"Create Document": {
+			"main": [
+				[
+					{
+						"node": "Send Email",
+						"type": "main",
+						"index": 0
+					},
+                     {
+						"node": "Upload to Google Drive",
+						"type": "main",
+						"index": 0
+					}
+				]
+			]
+		}
+	}
 }
 
 
