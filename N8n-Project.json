@@ -1,224 +1,212 @@
 
 {
-	"nodes": [
-		{
-			"parameters": {},
-			"name": "Start",
-			"type": "n8n-nodes-base.start",
-			"typeVersion": 2.2,
-			"position": [
-				0,
-				0
-			]
-		},
-		{
-			"parameters": {
-				"formUi": {
-					"options": [
-						{
-							"label": "Contract Title",
-							"name": "contractTitle",
-							"type": "string",
-							"required": true,
-							"description": "Enter the title of the contract."
-						},
-						{
-							"label": "Client Name",
-							"name": "clientName",
-							"type": "string",
-							"required": true,
-							"description": "Enter the name of the client."
-						},
-						{
-							"label": "Service Category",
-							"name": "serviceCategory",
-							"type": "options",
-							"required": true,
-							"options": [
-								{
-									"name": "Software Development",
-									"value": "softwareDevelopment"
-								},
-								{
-									"name": "Marketing",
-									"value": "marketing"
-								},
-								{
-									"name": "Consulting",
-									"value": "consulting"
-								}
-							],
-							"description": "Choose the category of service."
-						},
-						{
-							"label": "Start Date",
-							"name": "startDate",
-							"type": "date",
-							"required": true,
-							"description": "Enter the start date of the service contract."
-						},
-                         {
-                            "label": "End Date",
-                            "name": "endDate",
-                            "type": "date",
-                            "required": true,
-                            "description": "Enter the end date of the service contract."
-                         },
-						{
-							"label": "Service Requirements",
-							"name": "serviceRequirements",
-							"type": "string",
-							"required": true,
-							"typeOptions": {
-                                "rows": 5
-                            },
-							"description": "Describe the detailed requirements for this service contract."
-						}
-					],
-					"title": "SOW Input Form"
-				}
-			},
-			"name": "Input Form",
-			"type": "n8n-nodes-base.form",
-			"typeVersion": 1,
-			"position": [
-				-560,
-				300
-			]
-		},
-		{
-			"parameters": {
-				"functionCode": "const serviceCategory = $json.serviceCategory;\nlet clauses = {};\n\n// Dynamic clauses based on service category\nswitch (serviceCategory) {\n  case 'softwareDevelopment':\n    clauses = {\n      \"deliverables\": \"Detailed specifications, code repositories, testing reports\",\n      \"acceptanceCriteria\": \"Successful passing of all acceptance tests\",\n       \"reporting\": \"Bi-weekly progress reports\"\n    };\n    break;\n  case 'marketing':\n    clauses = {\n      \"deliverables\": \"Marketing strategy, campaign assets, performance reports\",\n      \"acceptanceCriteria\": \"Achieving key performance indicators (KPIs)\",\n      \"reporting\": \"Monthly campaign performance reports\"\n    };\n    break;\n  case 'consulting':\n    clauses = {\n      \"deliverables\": \"Consulting reports, strategic recommendations, workshop presentations\",\n      \"acceptanceCriteria\": \"Completion of agreed milestones\",\n       \"reporting\": \"Summary reports after each consultation session\"\n    };\n    break;\n  default:\n    clauses = {\"deliverables\": \"N/A\", \"acceptanceCriteria\": \"N/A\", \"reporting\":\"N/A\"};\n}\n\n\nreturn {\n  json: {\n    ...$json,\n    clauses\n  }\n};"
-			},
-			"name": "Dynamic Clause Generation",
-			"type": "n8n-nodes-base.function",
-			"typeVersion": 1,
-			"position": [
-				-340,
-				300
-			]
-		},
-        {
-            "parameters": {
-              "operation": "create",
-              "resource": "document",
-              "documentFormat": "docx",
-              "fileName": "={{$json[\"contractTitle\"]}} - SOW",
-              "fileContent": "## Scope of Work: {{$json.contractTitle}}\n\n**Client Name:** {{$json.clientName}}\n\n**Service Category:** {{$json.serviceCategory}}\n\n**Start Date:** {{$json.startDate}}\n\n**End Date:** {{$json.endDate}}\n\n### Service Requirements:\n\n{{$json.serviceRequirements}}\n\n### Deliverables:\n\n{{$json.clauses.deliverables}}\n\n### Acceptance Criteria:\n\n{{$json.clauses.acceptanceCriteria}}\n\n### Reporting Requirements:\n\n{{$json.clauses.reporting}}"
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [
+        200,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "formUi": {
+          "name": "Contract Details",
+          "fields": [
+            {
+              "label": "Client Name",
+              "name": "clientName",
+              "type": "string",
+              "required": true
             },
-            "name": "Create Document",
-            "type": "n8n-nodes-base.googleDocs",
-            "typeVersion": 1,
-            "position": [
-              -120,
-              300
-            ],
-            "credentials": {
-              "googleDocsOAuth2Api": {
-                  "id": "10",
-                  "name": "Google Docs account"
-              }
-           }
-        },
-        {
-			"parameters": {
-				"emailSubject": "New Scope of Work Document for {{$json.contractTitle}}",
-				"emailBody": "A new Scope of Work document has been generated for {{$json.contractTitle}}.\n\nPlease find the document attached.\n\n\n",
-                "attachments": [
-                    {
-                      "mode": "file",
-                      "file": "={{$json.file}}"
-                    }
-                  ],
-				"toEmail": "your-email@example.com"
-			},
-			"name": "Send Email",
-			"type": "n8n-nodes-base.emailSend",
-			"typeVersion": 1,
-			"position": [
-				100,
-				300
-			],
-            "credentials": {
-				"smtp": {
-                    "id": "12",
-                    "name": "SMTP account"
-                }
-			}
-		},
-        {
-			"parameters": {
-              "operation": "upload",
-              "folderId": "your-google-drive-folder-id",
-              "file": "={{$json.file}}",
-               "fileName": "={{$json[\"contractTitle\"]}} - SOW"
+            {
+              "label": "Service Category",
+              "name": "serviceCategory",
+              "type": "options",
+               "options": [
+                  {
+                    "name": "Option 1",
+                    "value": "option1"
+                  },
+                  {
+                    "name": "Option 2",
+                    "value": "option2"
+                   }
+                ],
+              "required": true
             },
-			"name": "Upload to Google Drive",
-			"type": "n8n-nodes-base.googleDrive",
-			"typeVersion": 1,
-			"position": [
-				100,
-                440
-			],
-            "credentials": {
-				"googleDriveOAuth2Api": {
-                    "id": "11",
-                    "name": "Google Drive account"
-                }
-			}
-		}
-	],
-	"connections": {
-		"Start": {
-			"main": [
-				[
-					{
-						"node": "Input Form",
-						"type": "main",
-						"index": 0
-					}
-				]
-			]
-		},
-		"Input Form": {
-			"main": [
-				[
-					{
-						"node": "Dynamic Clause Generation",
-						"type": "main",
-						"index": 0
-					}
-				]
-			]
-		},
-		"Dynamic Clause Generation": {
-			"main": [
-				[
-					{
-						"node": "Create Document",
-						"type": "main",
-						"index": 0
-					}
-				]
-			]
-		},
-		"Create Document": {
-			"main": [
-				[
-					{
-						"node": "Send Email",
-						"type": "main",
-						"index": 0
-					},
-                     {
-						"node": "Upload to Google Drive",
-						"type": "main",
-						"index": 0
-					}
-				]
-			]
-		}
-	}
+            {
+              "label": "Start Date",
+              "name": "startDate",
+              "type": "date",
+              "required": true
+            },
+              {
+              "label": "End Date",
+              "name": "endDate",
+              "type": "date",
+              "required": true
+            },
+           {
+              "label": "Detailed Service Requirements",
+              "name": "serviceRequirements",
+              "type": "string",
+              "required": true,
+                "multiline":true
+            }
+          ]
+        }
+      },
+      "name": "Collect Contract Details",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        400,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "search",
+         "options": {
+            "limit": 10
+          },
+        "query": "={{$node[\"Collect Contract Details\"].json[\"serviceCategory\"]}}",
+          "searchBy": "metadata"
+      },
+      "name": "Search Historical SoW",
+      "type": "n8n-nodes-base.googleDrive",
+       "typeVersion": 1,
+      "position": [
+        600,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "code": "// Code to analyze historical SoW documents for insights and reusable content\n// This is a placeholder, implement actual logic based on the Google Drive output\n\nconst historicalData = $input.all().map(item => item.json.data);\n\nlet combinedContent = '';\n\nhistoricalData.forEach(item => {\n  if (item && item.content) {\n    combinedContent += item.content + '\\n';\n  }\n});\n\n\n\n// This is a placeholder for the dynamic generation of clauses or sections based on service categories\n// Implement actual logic based on 'serviceCategory'\n\n\nlet serviceCategory = $node[\"Collect Contract Details\"].json[\"serviceCategory\"];\n\nlet clauses = ''\nif(serviceCategory === 'option1'){\n    clauses = 'These are the clauses for option 1'\n} else if (serviceCategory === 'option2'){\n    clauses = 'These are the clauses for option 2'\n}\n\n\n\n\nreturn [\n    {\n        json: {\n          historicalContent: combinedContent,\n            serviceClauses: clauses\n        }\n    }\n]\n",
+        "jsMode": true
+      },
+      "name": "Analyze Historical Data and Generate Clauses",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        800,
+        200
+      ]
+    },
+      {
+      "parameters": {
+        "documentId": "your_template_id",
+        "outputFormat": "docx",
+        "mergeFields": {
+          "fields": [
+            {
+              "key": "clientName",
+              "value": "={{$node[\"Collect Contract Details\"].json[\"clientName\"]}}"
+            },
+            {
+              "key": "serviceRequirements",
+              "value": "={{$node[\"Collect Contract Details\"].json[\"serviceRequirements\"]}}"
+            },
+              {
+              "key": "historicalContent",
+              "value": "={{$node[\"Analyze Historical Data and Generate Clauses\"].json[\"historicalContent\"]}}"
+            },
+              {
+              "key": "serviceClauses",
+              "value": "={{$node[\"Analyze Historical Data and Generate Clauses\"].json[\"serviceClauses\"]}}"
+            }
+          ]
+        }
+      },
+      "name": "Generate Document",
+      "type": "n8n-nodes-base.googleDocs",
+       "typeVersion": 1,
+      "position": [
+        1000,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "subject": "Scope of Work Document Generated",
+        "text": "The Scope of Work document has been generated for {{$node[\"Collect Contract Details\"].json[\"clientName\"]}}.",
+        "toEmail": "your_email@example.com"
+      },
+      "name": "Send Notification Email",
+      "type": "n8n-nodes-base.emailSend",
+       "typeVersion": 1,
+      "position": [
+        1200,
+        200
+      ]
+    },
+      {
+      "parameters": {
+           "operation": "upload",
+           "fileData": "={{$node[\"Generate Document\"].json[\"file\"]}}",
+          "fileName": "={{$node[\"Collect Contract Details\"].json[\"clientName\"]}}-SOW.docx",
+          "folderId": "your_folder_id"
+      },
+      "name": "Archive Document",
+      "type": "n8n-nodes-base.googleDrive",
+       "typeVersion": 1,
+      "position": [
+        1000,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          "Collect Contract Details",
+          0
+        ]
+      ]
+    },
+    "Collect Contract Details": {
+      "main": [
+        [
+          "Search Historical SoW",
+          0
+        ]
+      ]
+    },
+    "Search Historical SoW": {
+      "main": [
+        [
+          "Analyze Historical Data and Generate Clauses",
+          0
+        ]
+      ]
+    },
+    "Analyze Historical Data and Generate Clauses": {
+      "main": [
+           [
+          "Generate Document",
+          0
+        ]
+      ]
+    },
+    "Generate Document": {
+      "main": [
+           [
+          "Send Notification Email",
+          0
+        ],
+          [
+          "Archive Document",
+          0
+        ]
+      ]
+    }
+  }
 }
 
 
