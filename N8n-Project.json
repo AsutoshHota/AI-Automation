@@ -1,11 +1,12 @@
 
 {
+  "name": "Writing Scope of Work for Service Contracts",
   "nodes": [
     {
       "parameters": {},
       "name": "Start",
       "type": "n8n-nodes-base.start",
-      "typeVersion": 2.2,
+      "typeVersion": 1,
       "position": [
         0,
         0
@@ -14,48 +15,40 @@
     {
       "parameters": {
         "formUi": {
-          "formFields": [
+          "input": [
             {
-              "key": "contractName",
-              "label": "Contract Name",
-              "type": "string",
-              "required": true,
-              "description": "Enter the name of the contract."
-            },
-            {
-              "key": "clientName",
               "label": "Client Name",
-              "type": "string",
-              "required": true,
-              "description": "Enter the name of the client."
+              "name": "clientName",
+              "type": "string"
             },
             {
-              "key": "serviceCategory",
+              "label": "Contract Start Date",
+              "name": "contractStartDate",
+              "type": "date"
+            },
+            {
               "label": "Service Category",
+              "name": "serviceCategory",
               "type": "options",
               "options": [
                 {
-                  "name": "IT Services",
-                  "value": "it_services"
+                  "name": "Consulting",
+                  "value": "consulting"
                 },
                 {
-                  "name": "Marketing Services",
-                  "value": "marketing_services"
+                  "name": "Software Development",
+                  "value": "softwareDevelopment"
                 },
                 {
-                  "name": "Consulting Services",
-                  "value": "consulting_services"
+                  "name": "Marketing",
+                  "value": "marketing"
                 }
-              ],
-              "required": true,
-              "description": "Select the category of services."
+              ]
             },
              {
-              "key": "serviceDetails",
-              "label": "Service Details",
-              "type": "string",
-              "required": true,
-              "description": "Enter detailed description of the services needed."
+              "label": "Detailed Service Requirements",
+              "name": "serviceRequirements",
+              "type": "string"
             }
           ]
         }
@@ -63,130 +56,84 @@
       "name": "Collect Contract Details",
       "type": "n8n-nodes-base.form",
       "typeVersion": 1,
-       "position": [
-        480,
-        280
+      "position": [
+        200,
+        0
       ]
     },
         {
       "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{$json.body.serviceCategory}}",
-              "operation": "contains",
-               "value2": "it_services"
-            }
-          ]
-        }
+        "values": [
+          {
+            "json": "={\n  \"consulting\":{\n      \"clause_1\":\"Consulting services will be provided by expert consultants.\",\n      \"clause_2\":\"Consultants will deliver a report based on the work.\"\n  },\n   \"softwareDevelopment\":{\n      \"clause_1\":\"Software will be developed based on the requirements.\",\n      \"clause_2\":\"Testing will be performed before delivery.\"\n  },\n   \"marketing\":{\n      \"clause_1\":\"Marketing strategies will be proposed.\",\n      \"clause_2\":\"Campaigns will be executed based on the client approvals.\"\n  }\n}"
+          }
+        ],
+         "options": {}
       },
-      "name": "Check IT Services",
-      "type": "n8n-nodes-base.if",
+      "name": "Service Category Clauses",
+      "type": "n8n-nodes-base.set",
       "typeVersion": 1,
         "position": [
-        720,
-        160
-      ]
-    },
-        {
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{$json.body.serviceCategory}}",
-              "operation": "contains",
-               "value2": "marketing_services"
-            }
-          ]
-        }
-      },
-      "name": "Check Marketing Services",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-        "position": [
-        720,
-        280
-      ]
-    },
-        {
-      "parameters": {
-        "conditions": {
-          "string": [
-            {
-              "value1": "={{$json.body.serviceCategory}}",
-              "operation": "contains",
-               "value2": "consulting_services"
-            }
-          ]
-        }
-      },
-      "name": "Check Consulting Services",
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 1,
-        "position": [
-        720,
-        400
+        400,
+        0
       ]
     },
     {
       "parameters": {
-        "text": "## Scope of Work Document\n\n**Contract Name:** {{$json.body.contractName}}\n**Client Name:** {{$json.body.clientName}}\n**Service Category:** {{$json.body.serviceCategory}}\n**Service Details:** {{$json.body.serviceDetails}}\n\n## Specific Requirements\n\n{{$json[\"Specific IT Requirements\"].text}}\n{{$json[\"Specific Marketing Requirements\"].text}}\n{{$json[\"Specific Consulting Requirements\"].text}}"
+        "code": "// Get the service category from input data\nconst serviceCategory = $node[\"Collect Contract Details\"].data[0].json.serviceCategory;\n\n// Get the clauses based on the service category\nconst clauses = $node[\"Service Category Clauses\"].data[0].json[serviceCategory];\n\n// Prepare the output\nconst output = {\n  ...$input,\n  clauses: clauses\n}\nreturn output;\n"
       },
-      "name": "Generate Document",
-      "type": "n8n-nodes-base.set",
+      "name": "Get Category Clauses",
+      "type": "n8n-nodes-base.function",
       "typeVersion": 1,
       "position": [
-        1200,
-        280
-      ]
-    },
-    {
-      "parameters": {
-        "text": "### Specific IT Requirements\n- Detailed server configuration\n- Ongoing maintenance plan\n"
-      },
-      "name": "Specific IT Requirements",
-      "type": "n8n-nodes-base.set",
-       "typeVersion": 1,
-        "position": [
-        960,
-        160
+        600,
+        0
       ]
     },
      {
       "parameters": {
-         "text": "### Specific Marketing Requirements\n- Market analysis\n- Campaign strategy\n"
+        "documentId": "your_google_doc_id",
+         "fieldsUi": {
+          "field": [
+            {
+              "key": "Client Name",
+              "value": "={{$node[\"Collect Contract Details\"].data[0].json[\"clientName\"]}}"
+            },
+             {
+              "key": "Contract Start Date",
+               "value": "={{$node[\"Collect Contract Details\"].data[0].json[\"contractStartDate\"]}}"
+            },
+             {
+              "key": "Service Requirements",
+              "value": "={{$node[\"Collect Contract Details\"].data[0].json[\"serviceRequirements\"]}}"
+            },
+            {
+                "key": "Clauses",
+                "value": "={{JSON.stringify($node[\"Get Category Clauses\"].data[0].clauses)}}"
+            }
+          ]
+        }
       },
-      "name": "Specific Marketing Requirements",
-      "type": "n8n-nodes-base.set",
-       "typeVersion": 1,
-        "position": [
-        960,
-        280
-      ]
-    },
-     {
-      "parameters": {
-         "text": "### Specific Consulting Requirements\n- Detailed analysis\n- Strategic recommendation\n"
-      },
-      "name": "Specific Consulting Requirements",
-       "type": "n8n-nodes-base.set",
+      "name": "Google Docs",
+      "type": "n8n-nodes-base.googleDocs",
       "typeVersion": 1,
-        "position": [
-        960,
-        400
+      "position": [
+        800,
+        0
       ]
     },
     {
       "parameters": {
-        "content": "={{$json.text}}",
-        "fileName": "sow_{{$json.body.contractName}}.txt"
+        "subject": "New Scope of Work Document",
+        "text": "A new Scope of Work document has been generated for {{$node[\"Collect Contract Details\"].data[0].json[\"clientName\"]}}. Please review the document in Google Docs.",
+        "toEmail": "email@example.com"
       },
-      "name": "Save Document",
-      "type": "n8n-nodes-base.writeBinaryFile",
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
       "typeVersion": 1,
       "position": [
-       1440,
-        280
+        1000,
+        0
       ]
     }
   ],
@@ -194,167 +141,44 @@
     "Start": {
       "main": [
         [
-          {
-            "node": "Collect Contract Details",
-            "type": "main",
-            "index": 0
-          }
+          "Collect Contract Details",
+          0
         ]
       ]
     },
-    "Collect Contract Details": {
+      "Collect Contract Details": {
       "main": [
         [
-          {
-            "node": "Check IT Services",
-            "type": "main",
-            "index": 0
-          },
-           {
-            "node": "Check Marketing Services",
-            "type": "main",
-            "index": 0
-          },
-           {
-            "node": "Check Consulting Services",
-            "type": "main",
-            "index": 0
-          }
+          "Service Category Clauses",
+          0
         ]
       ]
     },
-    "Check IT Services": {
+      "Service Category Clauses": {
       "main": [
         [
-          {
-            "node": "Specific IT Requirements",
-            "type": "main",
-            "index": 0
-          }
+           "Get Category Clauses",
+          0
         ]
       ]
     },
-     "Check Marketing Services": {
+     "Get Category Clauses": {
       "main": [
         [
-           {
-            "node": "Specific Marketing Requirements",
-            "type": "main",
-            "index": 0
-          }
+          "Google Docs",
+          0
         ]
       ]
     },
-     "Check Consulting Services": {
+    "Google Docs": {
       "main": [
         [
-           {
-            "node": "Specific Consulting Requirements",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-      "Specific IT Requirements": {
-      "main": [
-        [
-          {
-            "node": "Generate Document",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Specific Marketing Requirements": {
-      "main": [
-        [
-          {
-            "node": "Generate Document",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Specific Consulting Requirements": {
-      "main": [
-        [
-          {
-            "node": "Generate Document",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Generate Document": {
-      "main": [
-        [
-          {
-            "node": "Save Document",
-            "type": "main",
-            "index": 0
-          }
+          "Send Email Notification",
+          0
         ]
       ]
     }
   }
 }
 
-### Workflow Explanation
-
-1.  **Start Node**:
-    *   This node initiates the workflow. It doesn't require any specific configuration.
-2.  **Collect Contract Details Node**:
-    *   **Type**: Form
-    *   **Purpose**: This node presents a form to collect necessary contract details from the user.
-    *   **Fields**:
-        *   **Contract Name**: (String, Required) The name of the contract.
-        *   **Client Name**: (String, Required) The name of the client.
-        *   **Service Category**: (Options, Required) Dropdown to choose the service category (IT Services, Marketing Services, Consulting Services).
-         *   **Service Details**: (String, Required) Detailed description of the services needed.
-3.  **Check IT Services Node**:
-    *   **Type**: If
-    *   **Purpose**: This node checks if the selected service category is `it_services`.
-4.   **Check Marketing Services Node**:
-    *   **Type**: If
-    *   **Purpose**: This node checks if the selected service category is `marketing_services`.
-5.   **Check Consulting Services Node**:
-    *   **Type**: If
-    *   **Purpose**: This node checks if the selected service category is `consulting_services`.
-6. **Specific IT Requirements Node**:
-    *   **Type**: Set
-    *   **Purpose**: This node sets the specific requirements for IT services.
-7.  **Specific Marketing Requirements Node**:
-    *   **Type**: Set
-    *   **Purpose**: This node sets the specific requirements for marketing services.
-8.  **Specific Consulting Requirements Node**:
-    *  **Type**: Set
-    *   **Purpose**: This node sets the specific requirements for consulting services.
-9.  **Generate Document Node**:
-    *   **Type**: Set
-    *   **Purpose**: This node generates the Scope of Work document by combining the collected details and specific requirements based on service category.
-    *   It uses expressions to include data from previous nodes.
-10. **Save Document Node**:
-    *   **Type**: Write Binary File
-    *   **Purpose**: This node saves the generated document to a file.
-    *   **Filename**: Uses an expression to dynamically create a filename based on the contract name.
-
-### How the Workflow Functions
-
-1.  The workflow starts with the **Start** node.
-2.  It then presents a form using the **Collect Contract Details** node to gather necessary information.
-3.  The **Check** nodes then check the selected service category.
-4. Based on the selected service category, the corresponding specific requirements are added.
-5.  The **Generate Document** node constructs the document content.
-6.  Finally, the **Save Document** node saves the generated Scope of Work document as a text file.
-
-### Additional Notes
-
-*   This workflow provides a basic structure. You may need to add more nodes for specific integrations (e.g., Google Docs, email).
-*   The **Check** nodes act as routers. Depending on the service category, specific requirements are added.
-*   Consider adding error handling nodes to manage potential issues (e.g., data validation).
-*   This workflow can be expanded to include more complex logic, such as dynamic clause generation based on the service category.
 
