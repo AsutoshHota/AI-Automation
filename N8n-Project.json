@@ -3,190 +3,358 @@
   "nodes": [
     {
       "parameters": {},
-      "id": "73d9e91a-4a75-4862-a44e-e170963f105b",
       "name": "Start",
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        240,
+        280
       ]
     },
     {
       "parameters": {
-        "values": [
-          {
-            "name": "contractDetails",
-            "value": ""
-          },
-           {
-            "name": "serviceRequirements",
-            "value": ""
-          },
-           {
-            "name": "clientCriteria",
-            "value": ""
-          }
-        ],
-         "options": {}
+        "formUi": {
+          "formFields": [
+            {
+              "key": "contractName",
+              "label": "Contract Name",
+              "type": "string",
+              "required": true,
+              "description": "Enter the name of the contract."
+            },
+            {
+              "key": "clientName",
+              "label": "Client Name",
+              "type": "string",
+              "required": true,
+              "description": "Enter the name of the client."
+            },
+            {
+              "key": "serviceCategory",
+              "label": "Service Category",
+              "type": "options",
+              "options": [
+                {
+                  "name": "IT Services",
+                  "value": "it_services"
+                },
+                {
+                  "name": "Marketing Services",
+                  "value": "marketing_services"
+                },
+                {
+                  "name": "Consulting Services",
+                  "value": "consulting_services"
+                }
+              ],
+              "required": true,
+              "description": "Select the category of services."
+            },
+             {
+              "key": "serviceDetails",
+              "label": "Service Details",
+              "type": "string",
+              "required": true,
+              "description": "Enter detailed description of the services needed."
+            }
+          ]
+        }
       },
-      "id": "3e7c58c2-9a98-4210-b90e-78349f5a0041",
-      "name": "Input Form",
-      "type": "n8n-nodes-base.set",
+      "name": "Collect Contract Details",
+      "type": "n8n-nodes-base.form",
       "typeVersion": 1,
        "position": [
-        200,
-        0
+        480,
+        280
+      ]
+    },
+        {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.serviceCategory}}",
+              "operation": "contains",
+               "value2": "it_services"
+            }
+          ]
+        }
+      },
+      "name": "Check IT Services",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+        "position": [
+        720,
+        160
+      ]
+    },
+        {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.serviceCategory}}",
+              "operation": "contains",
+               "value2": "marketing_services"
+            }
+          ]
+        }
+      },
+      "name": "Check Marketing Services",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+        "position": [
+        720,
+        280
+      ]
+    },
+        {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.body.serviceCategory}}",
+              "operation": "contains",
+               "value2": "consulting_services"
+            }
+          ]
+        }
+      },
+      "name": "Check Consulting Services",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+        "position": [
+        720,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "text": "## Scope of Work Document\n\n**Contract Name:** {{$json.body.contractName}}\n**Client Name:** {{$json.body.clientName}}\n**Service Category:** {{$json.body.serviceCategory}}\n**Service Details:** {{$json.body.serviceDetails}}\n\n## Specific Requirements\n\n{{$json[\"Specific IT Requirements\"].text}}\n{{$json[\"Specific Marketing Requirements\"].text}}\n{{$json[\"Specific Consulting Requirements\"].text}}"
+      },
+      "name": "Generate Document",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "text": "### Specific IT Requirements\n- Detailed server configuration\n- Ongoing maintenance plan\n"
+      },
+      "name": "Specific IT Requirements",
+      "type": "n8n-nodes-base.set",
+       "typeVersion": 1,
+        "position": [
+        960,
+        160
       ]
     },
      {
       "parameters": {
-          "operation": "get",
-          "url": "https://your-historical-sow-api.com/sow",
-          "options": {}
+         "text": "### Specific Marketing Requirements\n- Market analysis\n- Campaign strategy\n"
       },
-      "id": "f72b1e21-2a98-440e-8f37-395769c2f938",
-      "name": "Fetch Historical SOW",
-      "type": "n8n-nodes-base.httpRequest",
+      "name": "Specific Marketing Requirements",
+      "type": "n8n-nodes-base.set",
        "typeVersion": 1,
-       "position": [
-        400,
-        0
+        "position": [
+        960,
+        280
+      ]
+    },
+     {
+      "parameters": {
+         "text": "### Specific Consulting Requirements\n- Detailed analysis\n- Strategic recommendation\n"
+      },
+      "name": "Specific Consulting Requirements",
+       "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+        "position": [
+        960,
+        400
       ]
     },
     {
       "parameters": {
-        "jsCode": "// Code to analyze historical SOW and extract useful content\n// Input: items from 'Fetch Historical SOW' node\n\nconst historicalData = items[0].json;\n\nlet extractedContent = [];\n\n// Example: Extracting common clauses\nif (historicalData && Array.isArray(historicalData)) {\n  historicalData.forEach(item => {\n    if(item.clauses) {\n        extractedContent.push(...item.clauses)\n    }\n  });\n}\n\n\nreturn [\n  {\n    json: {\n      extractedContent: extractedContent\n    },\n  },\n];"
+        "content": "={{$json.text}}",
+        "fileName": "sow_{{$json.body.contractName}}.txt"
       },
-      "id": "b5a2c29d-c8b7-4a1a-9b6a-0d9a5a7c1894",
-      "name": "Analyze Historical SOW",
-      "type": "n8n-nodes-base.function",
+      "name": "Save Document",
+      "type": "n8n-nodes-base.writeBinaryFile",
       "typeVersion": 1,
-       "position": [
-        600,
-        0
+      "position": [
+       1440,
+        280
       ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Code to generate SOW document content dynamically\n// Input: items from 'Input Form' and 'Analyze Historical SOW'\n\nconst inputData = items[0].json;\nconst historicalContent = items[1].json.extractedContent;\n\nlet sowContent = `Scope of Work\\n\\n`;\n\n//Append Input Data\nsowContent += `Contract Details: ${inputData.contractDetails}\\n`;\nsowContent += `Service Requirements: ${inputData.serviceRequirements}\\n`;\nsowContent += `Client Criteria: ${inputData.clientCriteria}\\n\\n`;\n\n\n// Example: Adding historical content if available\nif (historicalContent && historicalContent.length > 0) {\n  sowContent += `\\nHistorical Insights:\\n`;\n  historicalContent.forEach(clause => {\n      sowContent += `- ${clause}\\n`\n  });\n\n}\n\n\nreturn [\n  {\n    json: {\n      sowDocument: sowContent\n    },\n  },\n];"
-      },
-      "id": "a1b2c3d4-e5f6-4789-9abc-def012345678",
-      "name": "Generate SOW Content",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-       "position": [
-        800,
-        0
-      ]
-    },
-    {
-        "parameters": {
-          "operation": "create",
-          "documentId": "your-google-doc-id",
-           "options": {}
-        },
-        "id": "d6e5f4a3-b2c1-4d0e-8f9a-0b7c6d5e4f3a",
-        "name": "Google Docs",
-        "type": "n8n-nodes-base.googleDocs",
-        "typeVersion": 1,
-         "position": [
-          1000,
-          0
-        ]
-      },
-      {
-      "parameters": {
-          "toEmail": "email@email.com",
-          "subject": "Generated SOW",
-          "text": "Please find the SOW document attached."
-      },
-      "id": "f9c8b7a6-5d4e-4f32-8a1b-2c3d4e5f6a7b",
-      "name": "Send Email",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 1,
-       "position": [
-          1200,
-          0
-        ]
     }
   ],
   "connections": {
-    "73d9e91a-4a75-4862-a44e-e170963f105b": {
+    "Start": {
       "main": [
         [
           {
-            "node": "3e7c58c2-9a98-4210-b90e-78349f5a0041",
+            "node": "Collect Contract Details",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-     "3e7c58c2-9a98-4210-b90e-78349f5a0041": {
+    "Collect Contract Details": {
       "main": [
         [
           {
-            "node": "f72b1e21-2a98-440e-8f37-395769c2f938",
+            "node": "Check IT Services",
             "type": "main",
             "index": 0
-          }
-         ]
-       ]
-     },
-    "f72b1e21-2a98-440e-8f37-395769c2f938": {
-      "main": [
-        [
-          {
-            "node": "b5a2c29d-c8b7-4a1a-9b6a-0d9a5a7c1894",
+          },
+           {
+            "node": "Check Marketing Services",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "b5a2c29d-c8b7-4a1a-9b6a-0d9a5a7c1894": {
-      "main": [
-        [
-          {
-            "node": "a1b2c3d4-e5f6-4789-9abc-def012345678",
-             "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "a1b2c3d4-e5f6-4789-9abc-def012345678": {
-      "main": [
-         [
-          {
-            "node": "d6e5f4a3-b2c1-4d0e-8f9a-0b7c6d5e4f3a",
+          },
+           {
+            "node": "Check Consulting Services",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-     "d6e5f4a3-b2c1-4d0e-8f9a-0b7c6d5e4f3a": {
+    "Check IT Services": {
       "main": [
         [
           {
-            "node": "f9c8b7a6-5d4e-4f32-8a1b-2c3d4e5f6a7b",
+            "node": "Specific IT Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+     "Check Marketing Services": {
+      "main": [
+        [
+           {
+            "node": "Specific Marketing Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+     "Check Consulting Services": {
+      "main": [
+        [
+           {
+            "node": "Specific Consulting Requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+      "Specific IT Requirements": {
+      "main": [
+        [
+          {
+            "node": "Generate Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Specific Marketing Requirements": {
+      "main": [
+        [
+          {
+            "node": "Generate Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Specific Consulting Requirements": {
+      "main": [
+        [
+          {
+            "node": "Generate Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Document": {
+      "main": [
+        [
+          {
+            "node": "Save Document",
             "type": "main",
             "index": 0
           }
         ]
       ]
     }
-  },
-  "active": false,
-  "settings": {
-    "saveDataErrorExecution": true,
-    "saveManualExecutions": true
-  },
-   "versionId": "5555e666-4444-4444-a444-444444444444",
-  "name": "Writing Scope of Work for Service Contracts",
-   "typeVersion": 2.2
+  }
 }
 
+### Workflow Explanation
+
+1.  **Start Node**:
+    *   This node initiates the workflow. It doesn't require any specific configuration.
+2.  **Collect Contract Details Node**:
+    *   **Type**: Form
+    *   **Purpose**: This node presents a form to collect necessary contract details from the user.
+    *   **Fields**:
+        *   **Contract Name**: (String, Required) The name of the contract.
+        *   **Client Name**: (String, Required) The name of the client.
+        *   **Service Category**: (Options, Required) Dropdown to choose the service category (IT Services, Marketing Services, Consulting Services).
+         *   **Service Details**: (String, Required) Detailed description of the services needed.
+3.  **Check IT Services Node**:
+    *   **Type**: If
+    *   **Purpose**: This node checks if the selected service category is `it_services`.
+4.   **Check Marketing Services Node**:
+    *   **Type**: If
+    *   **Purpose**: This node checks if the selected service category is `marketing_services`.
+5.   **Check Consulting Services Node**:
+    *   **Type**: If
+    *   **Purpose**: This node checks if the selected service category is `consulting_services`.
+6. **Specific IT Requirements Node**:
+    *   **Type**: Set
+    *   **Purpose**: This node sets the specific requirements for IT services.
+7.  **Specific Marketing Requirements Node**:
+    *   **Type**: Set
+    *   **Purpose**: This node sets the specific requirements for marketing services.
+8.  **Specific Consulting Requirements Node**:
+    *  **Type**: Set
+    *   **Purpose**: This node sets the specific requirements for consulting services.
+9.  **Generate Document Node**:
+    *   **Type**: Set
+    *   **Purpose**: This node generates the Scope of Work document by combining the collected details and specific requirements based on service category.
+    *   It uses expressions to include data from previous nodes.
+10. **Save Document Node**:
+    *   **Type**: Write Binary File
+    *   **Purpose**: This node saves the generated document to a file.
+    *   **Filename**: Uses an expression to dynamically create a filename based on the contract name.
+
+### How the Workflow Functions
+
+1.  The workflow starts with the **Start** node.
+2.  It then presents a form using the **Collect Contract Details** node to gather necessary information.
+3.  The **Check** nodes then check the selected service category.
+4. Based on the selected service category, the corresponding specific requirements are added.
+5.  The **Generate Document** node constructs the document content.
+6.  Finally, the **Save Document** node saves the generated Scope of Work document as a text file.
+
+### Additional Notes
+
+*   This workflow provides a basic structure. You may need to add more nodes for specific integrations (e.g., Google Docs, email).
+*   The **Check** nodes act as routers. Depending on the service category, specific requirements are added.
+*   Consider adding error handling nodes to manage potential issues (e.g., data validation).
+*   This workflow can be expanded to include more complex logic, such as dynamic clause generation based on the service category.
 
