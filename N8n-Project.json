@@ -8,72 +8,70 @@
       "type": "n8n-nodes-base.start",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        240,
+        300
       ]
     },
     {
       "parameters": {
         "formUi": {
-          "form": [
+          "formFields": [
             {
               "label": "Contract Title",
               "name": "contractTitle",
               "type": "string",
               "required": true,
-              "description": "Enter the title of the contract"
+              "placeholder": "e.g., Software Development Contract"
             },
             {
               "label": "Client Name",
               "name": "clientName",
               "type": "string",
               "required": true,
-              "description": "Enter the name of the client"
+              "placeholder": "e.g., Acme Corp"
             },
-            {
+             {
               "label": "Service Category",
               "name": "serviceCategory",
               "type": "options",
-              "required": true,
-              "options": [
+               "options": [
                 {
-                  "name": "IT Services",
-                  "value": "it_services"
+                  "name": "Software Development",
+                  "value": "softwareDevelopment"
                 },
                 {
-                  "name": "Marketing Services",
-                  "value": "marketing_services"
-                },
-                 {
                   "name": "Consulting Services",
-                  "value": "consulting_services"
+                  "value": "consultingServices"
+                  },
+                   {
+                  "name": "Marketing Services",
+                  "value": "marketingServices"
                 }
               ],
-                "description": "Select the category of service"
+              "required": true,
+               "default": "softwareDevelopment"
             },
-              {
-                "label": "Service Description",
-                "name": "serviceDescription",
-                "type": "string",
-                "required": true,
-                 "typeOptions": {
-                   "rows": 4
-                  },
-                "description": "Describe the service in detail"
-              },
             {
               "label": "Start Date",
               "name": "startDate",
-              "type": "date",
-              "required": true,
-              "description": "Enter the start date of the contract"
+               "type": "date",
+              "required": true
             },
             {
               "label": "End Date",
               "name": "endDate",
-              "type": "date",
+               "type": "date",
+              "required": true
+            },
+            {
+              "label": "Detailed Service Requirements",
+              "name": "serviceRequirements",
+              "type": "string",
               "required": true,
-               "description": "Enter the end date of the contract"
+              "typeOptions":{
+                  "rows": 4
+              },
+              "placeholder": "Describe specific requirements for the service."
             }
           ]
         }
@@ -82,127 +80,131 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 1,
       "position": [
-        200,
-        0
-      ],
-       "notes": "Collect all necessary contract details using a form."
+        480,
+        300
+      ]
     },
     {
       "parameters": {
-        "functionCode": "// Get the data of the previous node\nconst contractDetails = $input.item.json;\n\n// Access historical SoW data (replace with actual database/API call)\nconst historicalSoW = {\n  it_services: [\n    \"Include regular maintenance and updates.\",\n    \"Ensure 24/7 support.\"\n  ],\n  marketing_services: [\n    \"Develop marketing strategy.\",\n    \"Manage social media campaigns.\"\n  ],\n    consulting_services: [\n     \"Provide expert advice.\",\n     \"Analyze market trends.\"\n   ]\n};\n\n// Extract relevant clauses based on service category\nconst serviceCategory = contractDetails.serviceCategory;\nconst clauses = historicalSoW[serviceCategory] || [];\n\n// Combine and add the clauses\nconst combinedDescription = `${contractDetails.serviceDescription} \\n\\n Based on historical data, include the following:\n${clauses.join('\\n - ')}`;\n\n\n// Return the modified data\nreturn [{\n  json: {\n    ...contractDetails,\n     combinedDescription,\n    clauses: clauses\n  }\n}];"
-      },
-      "name": "Analyze Historical SoW",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        400,
-        0
-      ],
-      "notes": "Fetch historical data and add relevant clauses."
-    },
-    {
-      "parameters": {
-        "documentFormat": "docx",
-        "outputFormat": "docx",
-        "template": "",
-        "documentData": "={\n  \"contractTitle\": $json.contractTitle,\n  \"clientName\": $json.clientName,\n  \"serviceDescription\": $json.combinedDescription,\n  \"startDate\": $json.startDate,\n  \"endDate\": $json.endDate,\n  \"clauses\": $json.clauses\n}",
-        "templateType": "Handlebars"
-      },
-      "name": "Generate SoW Document",
-      "type": "n8n-nodes-base.document",
-      "typeVersion": 1,
-       "position": [
-        600,
-        0
-      ],
-       "notes": "Generate the SoW Document using the collected and enhanced data."
-    },
-    {
-      "parameters": {
-        "toEmail": "user@example.com",
-        "subject": "New SoW Document",
-        "text": "A new Scope of Work document has been generated for {{$json.contractTitle}}.",
-        "attachmentsUi": {
-          "attachments": [
+        "conditions": {
+          "string": [
             {
-              "name": "Scope_of_Work_{{$json.contractTitle}}.docx",
-              "file": "={{$binary.data}}"
+              "value1": "={{$json[\"serviceCategory\"]}}",
+              "operation": "is",
+              "value2": "softwareDevelopment"
             }
           ]
         }
       },
-      "name": "Email Notification",
-      "type": "n8n-nodes-base.emailSend",
+      "name": "Check Service Category",
+      "type": "n8n-nodes-base.if",
+       "typeVersion": 1,
+      "position": [
+        720,
+        300
+      ]
+    },
+        {
+      "parameters": {
+        "code": "const sowTemplate = {\n  \"softwareDevelopment\": {\n    \"scope\": \"This scope of work outlines the project requirements, deliverables, and timelines for the software development project. It includes all the necessary information for project execution and quality assurance. The service provider will develop, test, and deploy software according to the requirements\",\n     \"clauses\":[\"Requirement Analysis\", \"System Design\", \"Coding and Development\", \"Testing and QA\", \"Deployment\", \"Maintenance\"]\n  },\n  \"consultingServices\": {\n    \"scope\": \"This scope of work is for the provision of consulting services and includes the terms, timelines, and required deliverables. The consultant will provide advice and strategies on project management and business operations.\",\n     \"clauses\":[\"Project Planning\", \"Strategic Advice\", \"Process Optimization\", \"Data Analysis\", \"Report Preparation\"]\n  },\n    \"marketingServices\": {\n    \"scope\": \"This scope of work is for the delivery of marketing services aimed at achieving business objectives.  The marketing agency will create and implement marketing campaigns across various platforms, measure the results, and optimize.\",\n     \"clauses\":[\"Market Analysis\", \"Campaign Creation\", \"Content Development\", \"Social Media Management\", \"Performance Analysis\"]\n  }\n};\n\nconst serviceCategory = $json[\"serviceCategory\"];\nconst selectedTemplate = sowTemplate[serviceCategory];\n\nif(selectedTemplate){\n  return  [{\"json\":{\"scope\":selectedTemplate.scope,\"clauses\":selectedTemplate.clauses}}]\n}\n\nreturn []\n",
+      },
+       "name": "Generate SOW Content",
+      "type": "n8n-nodes-base.function",
+       "typeVersion": 1,
+      "position": [
+        960,
+        300
+      ]
+    },
+        {
+      "parameters": {
+         "template": "## Scope of Work for {{ $json[\"contractTitle\"] }}\n\n**Client:** {{ $json[\"clientName\"] }}\n\n**Start Date:** {{ $json[\"startDate\"] }}\n\n**End Date:** {{ $json[\"endDate\"] }}\n\n**Service Category:** {{ $json[\"serviceCategory\"] }}\n\n**Detailed Service Requirements:**\n\n{{ $json[\"serviceRequirements\"] }}\n\n**Scope:**\n\n{{$json[\"scope\"]}}\n\n**Key Clauses:**\n\n{{ $json[\"clauses\"].join('\\n- ')}}",
+        "options": {}
+      },
+      "name": "Format SOW Document",
+      "type": "n8n-nodes-base.set",
+       "typeVersion": 1,
+      "position": [
+        1200,
+        300
+      ]
+    },
+     {
+      "parameters": {
+        "operation": "create",
+        "fileFormat": "docx",
+         "fileName": "={{$json[\"contractTitle\"]}}-sow",
+        "fileContent": "={{$json[\"formatted\"]}}"
+      },
+      "name": "Create Document",
+      "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 1,
       "position": [
-        800,
-        0
-      ],
-      "notes": "Send an email notification with the generated SoW Document."
+        1440,
+        300
+      ]
     },
     {
       "parameters": {
-           "collection": "sow_documents",
-            "document": "={\n  \"contractTitle\": $json.contractTitle,\n  \"clientName\": $json.clientName,\n  \"serviceDescription\": $json.combinedDescription,\n  \"startDate\": $json.startDate,\n  \"endDate\": $json.endDate,\n    \"clauses\": $json.clauses,\n     \"document\": {{$binary.data}}\n}",
-           "operation": "upsert"
-         },
-      "name": "Store Document",
-      "type": "n8n-nodes-base.documentStore",
+        "subject": "New Scope of Work Document Generated",
+        "toEmail": "example@example.com",
+        "text": "A new scope of work document has been generated for {{$json[\"contractTitle\"]}}. Please find it attached."
+      },
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
       "typeVersion": 1,
       "position": [
-        800,
-        200
-      ],
-      "notes": "Store the document in a document database."
+        1680,
+        300
+      ]
     }
   ],
   "connections": {
     "Start": {
       "main": [
         [
-          {
-            "node": "Collect Contract Details",
-            "type": "main",
-            "index": 0
-          }
+          "Collect Contract Details",
+          0
         ]
       ]
     },
-    "Collect Contract Details": {
+     "Collect Contract Details": {
       "main": [
         [
-          {
-            "node": "Analyze Historical SoW",
-            "type": "main",
-            "index": 0
-          }
+          "Check Service Category",
+          0
         ]
       ]
     },
-    "Analyze Historical SoW": {
+    "Check Service Category": {
       "main": [
         [
-          {
-            "node": "Generate SoW Document",
-            "type": "main",
-            "index": 0
-          }
+          "Generate SOW Content",
+          0
         ]
       ]
     },
-    "Generate SoW Document": {
+     "Generate SOW Content": {
       "main": [
         [
-          {
-            "node": "Email Notification",
-            "type": "main",
-            "index": 0
-          },
-           {
-            "node": "Store Document",
-            "type": "main",
-            "index": 0
-          }
+           "Format SOW Document",
+          0
+        ]
+      ]
+    },
+     "Format SOW Document": {
+      "main": [
+        [
+           "Create Document",
+          0
+        ]
+      ]
+    },
+      "Create Document": {
+      "main": [
+        [
+          "Send Email Notification",
+          0
         ]
       ]
     }
