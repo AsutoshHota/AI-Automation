@@ -1,184 +1,350 @@
+html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreshCart - Supermarket E-commerce</title>
+    <style>
+        /* CSS Reset */
+        body, h1, h2, h3, h4, h5, h6, p, ul, li, form, input, button {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            list-style: none;
+            box-sizing: border-box;
+        }
 
-{
-  "name": "Writing Scope of Work for Service Contracts",
-  "nodes": [
-    {
-      "parameters": {},
-      "name": "Start",
-      "type": "n8n-nodes-base.start",
-      "typeVersion": 1,
-      "position": [
-        0,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "formUi": {
-          "input": [
-            {
-              "label": "Client Name",
-              "name": "clientName",
-              "type": "string"
-            },
-            {
-              "label": "Contract Start Date",
-              "name": "contractStartDate",
-              "type": "date"
-            },
-            {
-              "label": "Service Category",
-              "name": "serviceCategory",
-              "type": "options",
-              "options": [
-                {
-                  "name": "Consulting",
-                  "value": "consulting"
-                },
-                {
-                  "name": "Software Development",
-                  "value": "softwareDevelopment"
-                },
-                {
-                  "name": "Marketing",
-                  "value": "marketing"
-                }
-              ]
-            },
-             {
-              "label": "Detailed Service Requirements",
-              "name": "serviceRequirements",
-              "type": "string"
-            }
-          ]
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f9f9f9;
         }
-      },
-      "name": "Collect Contract Details",
-      "type": "n8n-nodes-base.form",
-      "typeVersion": 1,
-      "position": [
-        200,
-        0
-      ]
-    },
-        {
-      "parameters": {
-        "values": [
-          {
-            "json": "={\n  \"consulting\":{\n      \"clause_1\":\"Consulting services will be provided by expert consultants.\",\n      \"clause_2\":\"Consultants will deliver a report based on the work.\"\n  },\n   \"softwareDevelopment\":{\n      \"clause_1\":\"Software will be developed based on the requirements.\",\n      \"clause_2\":\"Testing will be performed before delivery.\"\n  },\n   \"marketing\":{\n      \"clause_1\":\"Marketing strategies will be proposed.\",\n      \"clause_2\":\"Campaigns will be executed based on the client approvals.\"\n  }\n}"
-          }
-        ],
-         "options": {}
-      },
-      "name": "Service Category Clauses",
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 1,
-        "position": [
-        400,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "code": "// Get the service category from input data\nconst serviceCategory = $node[\"Collect Contract Details\"].data[0].json.serviceCategory;\n\n// Get the clauses based on the service category\nconst clauses = $node[\"Service Category Clauses\"].data[0].json[serviceCategory];\n\n// Prepare the output\nconst output = {\n  ...$input,\n  clauses: clauses\n}\nreturn output;\n"
-      },
-      "name": "Get Category Clauses",
-      "type": "n8n-nodes-base.function",
-      "typeVersion": 1,
-      "position": [
-        600,
-        0
-      ]
-    },
-     {
-      "parameters": {
-        "documentId": "your_google_doc_id",
-         "fieldsUi": {
-          "field": [
-            {
-              "key": "Client Name",
-              "value": "={{$node[\"Collect Contract Details\"].data[0].json[\"clientName\"]}}"
-            },
-             {
-              "key": "Contract Start Date",
-               "value": "={{$node[\"Collect Contract Details\"].data[0].json[\"contractStartDate\"]}}"
-            },
-             {
-              "key": "Service Requirements",
-              "value": "={{$node[\"Collect Contract Details\"].data[0].json[\"serviceRequirements\"]}}"
-            },
-            {
-                "key": "Clauses",
-                "value": "={{JSON.stringify($node[\"Get Category Clauses\"].data[0].clauses)}}"
-            }
-          ]
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
-      },
-      "name": "Google Docs",
-      "type": "n8n-nodes-base.googleDocs",
-      "typeVersion": 1,
-      "position": [
-        800,
-        0
-      ]
-    },
-    {
-      "parameters": {
-        "subject": "New Scope of Work Document",
-        "text": "A new Scope of Work document has been generated for {{$node[\"Collect Contract Details\"].data[0].json[\"clientName\"]}}. Please review the document in Google Docs.",
-        "toEmail": "email@example.com"
-      },
-      "name": "Send Email Notification",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 1,
-      "position": [
-        1000,
-        0
-      ]
-    }
-  ],
-  "connections": {
-    "Start": {
-      "main": [
-        [
-          "Collect Contract Details",
-          0
-        ]
-      ]
-    },
-      "Collect Contract Details": {
-      "main": [
-        [
-          "Service Category Clauses",
-          0
-        ]
-      ]
-    },
-      "Service Category Clauses": {
-      "main": [
-        [
-           "Get Category Clauses",
-          0
-        ]
-      ]
-    },
-     "Get Category Clauses": {
-      "main": [
-        [
-          "Google Docs",
-          0
-        ]
-      ]
-    },
-    "Google Docs": {
-      "main": [
-        [
-          "Send Email Notification",
-          0
-        ]
-      ]
-    }
-  }
-}
+
+        header {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 0;
+        }
+
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 1.8em;
+        }
+
+        nav ul {
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+         nav a:hover {
+            color: #ddd;
+        }
+
+
+        .search-bar {
+            margin-top: 20px;
+        }
+        .search-bar input {
+            padding: 10px;
+            width: 70%;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+         .search-bar button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .search-bar button:hover{
+            background-color: #367c39;
+        }
+       
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .product-card {
+             background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover{
+             transform: translateY(-5px);
+        }
+
+        .product-card img {
+             width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-card h3{
+           padding: 10px;
+           font-size: 1.2em;
+           color: #333;
+        }
+
+        .product-card p{
+            padding: 0 10px 10px;
+        }
+
+        .product-card button {
+            display: block;
+            width: 100%;
+             padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .product-card button:hover{
+            background-color: #367c39;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .auth-form input{
+            padding: 10px;
+            margin-bottom: 10px;
+             border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .auth-form button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+         .auth-form button:hover{
+            background-color: #367c39;
+        }
+
+
+        .cart {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+         .cart ul {
+            margin-top: 10px;
+        }
+        .cart li {
+            display: flex;
+             justify-content: space-between;
+            padding: 5px 0;
+             border-bottom: 1px solid #eee;
+        }
+        .cart li:last-child {
+            border-bottom: none;
+        }
+        .cart .total {
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: right;
+        }
+
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+             padding: 20px 0;
+            margin-top: 40px;
+        }
+
+
+        /* Mobile Responsiveness */
+         @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 10px;
+            }
+            header .container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            nav ul {
+                margin-top: 10px;
+                flex-direction: column;
+             }
+            nav ul li {
+                margin-left: 0;
+                margin-bottom: 10px;
+            }
+            .search-bar input {
+                width: 100%;
+            }
+             .products-grid{
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>FreshCart</h1>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Products</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Login</a></li>
+                    <li><a href="#">Register</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
+        <div class="search-bar">
+            <input type="text" placeholder="Search products...">
+            <button>Search</button>
+        </div>
+
+        <section class="products-grid">
+             <div class="product-card">
+                <img src="https://images.unsplash.com/photo-1607082348812-e94e14760324?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Z3JvY2VyaWVzfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Product 1">
+                <h3>Fresh Apples</h3>
+                <p>Crispy and delicious apples.</p>
+                <button>Add to Cart</button>
+            </div>
+             <div class="product-card">
+                 <img src="https://images.unsplash.com/photo-1557800888-74768f1f2c9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGdyb2Nlcmllc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Product 2">
+                <h3>Organic Bananas</h3>
+                <p>Sweet and healthy bananas.</p>
+                <button>Add to Cart</button>
+            </div>
+             <div class="product-card">
+                  <img src="https://images.unsplash.com/photo-1586218754174-694435d9499b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGdyb2Nlcmllc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Product 3">
+                <h3>Fresh Milk</h3>
+                <p>Pure and rich milk.</p>
+                 <button>Add to Cart</button>
+             </div>
+              <div class="product-card">
+                  <img src="https://images.unsplash.com/photo-1633016600071-0d0526f00486?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjh8fGdyb2Nlcmllc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Product 4">
+                <h3>Whole Wheat Bread</h3>
+                <p>Nutritious whole wheat bread.</p>
+                 <button>Add to Cart</button>
+            </div>
+              <div class="product-card">
+                 <img src="https://images.unsplash.com/photo-1596462548540-4dd5b4841b2a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mzl8fGdyb2Nlcmllc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60" alt="Product 5">
+                <h3>Ground Coffee</h3>
+                 <p>Rich and aromatic coffee.</p>
+                <button>Add to Cart</button>
+            </div>
+        </section>
+
+          <section class="auth-form" id="login-form" style="display: none">
+              <h2>Login</h2>
+              <input type="email" placeholder="Email" required>
+              <input type="password" placeholder="Password" required>
+              <button>Login</button>
+          </section>
+           <section class="auth-form" id="register-form" style="display: none">
+               <h2>Register</h2>
+              <input type="text" placeholder="Username" required>
+              <input type="email" placeholder="Email" required>
+              <input type="password" placeholder="Password" required>
+              <button>Register</button>
+          </section>
+
+           <section class="cart" id="shopping-cart" style="display: none">
+               <h2>Shopping Cart</h2>
+               <ul>
+                  <li>
+                      <span>Fresh Apples x 1</span>
+                      <span>$2.50</span>
+                  </li>
+                   <li>
+                       <span>Organic Bananas x 2</span>
+                        <span>$1.80</span>
+                   </li>
+                </ul>
+                <div class="total">Total: $4.30</div>
+                <button>Checkout</button>
+           </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 FreshCart. All Rights Reserved.</p>
+    </footer>
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+                const loginLink = document.querySelector('header nav ul li:nth-child(5) a');
+                const registerLink = document.querySelector('header nav ul li:nth-child(6) a');
+                const loginForm = document.getElementById('login-form');
+                const registerForm = document.getElementById('register-form');
+                const cartSection = document.getElementById('shopping-cart')
+
+
+                loginLink.addEventListener('click', function(e) {
+                   e.preventDefault();
+                  loginForm.style.display = 'flex';
+                  registerForm.style.display = 'none';
+                  cartSection.style.display ='none';
+              });
+
+
+                registerLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                  registerForm.style.display = 'flex';
+                  loginForm.style.display = 'none';
+                  cartSection.style.display = 'none';
+
+               });
+        const addToCartButtons = document.querySelectorAll('.product-card button');
+            addToCartButtons.forEach(button => {
+                button.addEventListener('click', function(){
+                cartSection.style.display = 'block';
+                loginForm.style.display ='none';
+                 registerForm.style.display = 'none';
+                  alert('Added to cart!');
+
+                  });
+              });
+        });
+    </script>
+</body>
+</html>
 
 
